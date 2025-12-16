@@ -5,6 +5,8 @@ import type { PrismaClient } from "@prisma/client";
 export type UserCreate = {
   id?: string;
   email: string;
+  firstName: string;
+  lastName: string;
   role: UserRole;
   passwordHash: string;
 }

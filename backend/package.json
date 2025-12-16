@@ -7,9 +7,9 @@
   "author": "Ant Addis",
   "license": "N/A",
   "scripts": {
-    "db-reset": "rm -rf prisma/generated/ prisma/migrations/ prisma/pa-compact.db && npx prisma format && npx prisma migrate dev --name init && npx prisma generate",
-    "db-studio": "npx prisma studio",
-    "db-migrate": "npx prisma migrate dev",
+    "db:reset": "rm -rf prisma/generated/ prisma/migrations/ prisma/pa-compact.db && npx prisma format && npx prisma migrate dev --name init && npx prisma generate",
+    "db:studio": "npx prisma studio",
+    "db:migrate": "npx prisma migrate dev",
     "api": "tsx watch -r tsconfig-paths/register src/server.ts",
     "seed": "npx prisma db seed",
     "build": "tsc -p tsconfig.json && tsc-alias",

@@ -20,6 +20,7 @@ export class UserService {
   async ensureUser(createPayload: UserCreate): Promise<User> {
     const existing = await this.getUserByEmail(createPayload.email);
     if (existing) {
+      console.log('user exists: ', createPayload.email);
       return existing;
     }
 

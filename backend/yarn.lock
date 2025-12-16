@@ -1404,30 +1404,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"gov-ts-backend-template@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "gov-ts-backend-template@workspace:."
-  dependencies:
-    "@fastify/cookie": "npm:^10.0.0"
-    "@fastify/cors": "npm:^11.2.0"
-    "@fastify/swagger": "npm:^9.6.1"
-    "@fastify/swagger-ui": "npm:^5.2.3"
-    "@prisma/client": "npm:^6.17.0"
-    "@types/lodash-es": "npm:^4.17.12"
-    "@types/node": "npm:^24.7.0"
-    bcryptjs: "npm:^2.4.3"
-    fastify: "npm:^5.1.0"
-    lodash-es: "npm:^4.17.21"
-    prisma: "npm:^6.17.0"
-    ts-node: "npm:^10.9.2"
-    tsc-alias: "npm:^1.8.16"
-    tsconfig-paths: "npm:^4.2.0"
-    tsx: "npm:^4.20.6"
-    typescript: "npm:^5.9.3"
-    uuid: "npm:^13.0.0"
-  languageName: unknown
-  linkType: soft
-
 "graceful-fs@npm:^4.2.6":
   version: 4.2.11
   resolution: "graceful-fs@npm:4.2.11"
@@ -1903,6 +1879,30 @@ __metadata:
   checksum: 10c0/a5030935d3cb2919d7e89454d1ce82141e6f9955413658b8c9403cfe379283770ed3048146b44cde168aa9e8c716505f196d5689db0ae3ce9a71521a2fef3abd
   languageName: node
   linkType: hard
+
+"pa-compact-licensure-demo@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "pa-compact-licensure-demo@workspace:."
+  dependencies:
+    "@fastify/cookie": "npm:^10.0.0"
+    "@fastify/cors": "npm:^11.2.0"
+    "@fastify/swagger": "npm:^9.6.1"
+    "@fastify/swagger-ui": "npm:^5.2.3"
+    "@prisma/client": "npm:^6.17.0"
+    "@types/lodash-es": "npm:^4.17.12"
+    "@types/node": "npm:^24.7.0"
+    bcryptjs: "npm:^2.4.3"
+    fastify: "npm:^5.1.0"
+    lodash-es: "npm:^4.17.21"
+    prisma: "npm:^6.17.0"
+    ts-node: "npm:^10.9.2"
+    tsc-alias: "npm:^1.8.16"
+    tsconfig-paths: "npm:^4.2.0"
+    tsx: "npm:^4.20.6"
+    typescript: "npm:^5.9.3"
+    uuid: "npm:^13.0.0"
+  languageName: unknown
+  linkType: soft
 
 "package-json-from-dist@npm:^1.0.0":
   version: 1.0.1

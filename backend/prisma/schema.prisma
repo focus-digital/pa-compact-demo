@@ -13,14 +13,329 @@ datasource db {
 // == Enums ==
 
 enum UserRole {
-  USER
-  ADMIN
+  PA
+  STATE_ADMIN
+  COMMISSION_ADMIN
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  NEEDS_INFO
+  APPROVED
+  DENIED
+  ISSUED
+}
+
+enum PrivilegeStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  SUSPENDED
+}
+
+enum LicenseSelfReportedStatus {
+  ACTIVE
+  EXPIRED
+  SUSPENDED
+  RESTRICTED
+}
+
+enum LicenseVerificationStatus {
+  UNVERIFIED
+  VERIFIED
+  NOT_ELIGIBLE
+}
+
+enum PaymentStatus {
+  REQUIRES_PAYMENT
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  SUBMIT
+  ISSUE
+  APPROVE
+  DENY
+  REQUEST_INFO
+  STATUS_CHANGE
+  PAYMENT_EVENT
+  LOGIN
+  LOGOUT
 }
 
 // == Tables ===
+//
+// Identity / roles
+//
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
+  firstName    String
+  lastName     String
   role         UserRole
   passwordHash String
+
+  practitioner Practitioner?
+
+  // TODO audit events?
+
+  createdAt                  DateTime                   @default(now())
+  updatedAt                  DateTime                   @updatedAt
+  licenseStatusHistories     LicenseStatusHistory[]
+  applicationStatusHistories ApplicationStatusHistory[]
+  privilegeStatusHistories   PrivilegeStatusHistory[]
+
+  @@index([firstName, lastName])
+}
+
+//
+// Core reference tables
+//
+
+model MemberState {
+  id       String  @id @default(uuid())
+  code     String  @unique // e.g., "MA"
+  name     String
+  isActive Boolean @default(true)
+
+  // relations
+  licenses              License[]
+  privilegeApplications PrivilegeApplication[]
+  privileges            Privilege[]
+  // TODO roleAssignments     UserRoleAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+}
+
+//
+// Practitioner / license foundation
+//
+
+model Practitioner {
+  id     String @id @default(uuid())
+  userId String @unique
+
+  // minimal profile fields for demo + public lookup  
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // relations
+  licenses                     License[]
+  qualifyingLicenseDesignation QualifyingLicenseDesignation?
+  applications                 PrivilegeApplication[]
+  privileges                   Privilege[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model License {
+  id             String @id @default(uuid())
+  practitionerId String
+  issuingStateId String
+
+  licenseNumber  String
+  issueDate      DateTime?
+  expirationDate DateTime?
+
+  selfReportedStatus LicenseSelfReportedStatus
+  verificationStatus LicenseVerificationStatus @default(UNVERIFIED)
+
+  // optional evidence / upload pointers (store in object storage)
+  evidenceUrl String?
+
+  practitioner Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+  issuingState MemberState  @relation(fields: [issuingStateId], references: [id])
+
+  // relations
+  // TODO statusHistory LicenseStatusHistory[]?
+  usedByApplications    PrivilegeApplication[]        @relation("ApplicationQualifyingLicense")
+  usedByPrivileges      Privilege[]                   @relation("PrivilegeQualifyingLicense")
+  qualifyingDesignation QualifyingLicenseDesignation?
+
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+  licenseStatusHistories LicenseStatusHistory[]
+
+  @@index([practitionerId])
+  @@index([issuingStateId])
+  @@index([licenseNumber])
+}
+
+model QualifyingLicenseDesignation {
+  id             String @id @default(uuid())
+  practitionerId String @unique
+  licenseId      String @unique
+
+  effectiveFrom DateTime  @default(now())
+  effectiveTo   DateTime?
+
+  practitioner Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+  license      License      @relation(fields: [licenseId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+}
+
+model LicenseStatusHistory {
+  id        String @id @default(uuid())
+  licenseId String
+
+  verificationStatus LicenseVerificationStatus
+  note               String?
+  actorUserId        String? // who verified/changed status
+
+  license License @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+  actor   User?   @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([licenseId, createdAt])
+}
+
+//
+// Privilege application -> issuance
+//
+
+model PrivilegeApplication {
+  id             String @id @default(uuid())
+  practitionerId String
+  remoteStateId  String
+
+  // qualifying license snapshot link
+  qualifyingLicenseId String
+
+  status ApplicationStatus @default(DRAFT)
+
+  // minimal notes / messaging
+  applicantNote String?
+  reviewerNote  String?
+
+  // relations
+  practitioner      Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+  remoteState       MemberState  @relation(fields: [remoteStateId], references: [id])
+  qualifyingLicense License      @relation("ApplicationQualifyingLicense", fields: [qualifyingLicenseId], references: [id], onDelete: Restrict)
+
+  statusHistory   ApplicationStatusHistory[]
+  attestations    Attestation[]
+  payment         PaymentTransaction?
+  issuedPrivilege Privilege?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([remoteStateId, status])
+  @@index([practitionerId, status])
+  @@index([qualifyingLicenseId])
+}
+
+model ApplicationStatusHistory {
+  id            String @id @default(uuid())
+  applicationId String
+
+  status      ApplicationStatus
+  reason      String? // free text for demo; can become coded later
+  actorUserId String? // state admin / commission / system
+
+  application PrivilegeApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  actor       User?                @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([applicationId, createdAt])
+}
+
+model Attestation {
+  id            String @id @default(uuid())
+  applicationId String
+
+  type       String // e.g., "jurisprudence", "good_standing", "military_affiliation"
+  accepted   Boolean   @default(false)
+  acceptedAt DateTime?
+  text       String? // store the attestation text presented at time of acceptance (audit)
+
+  application PrivilegeApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId, type])
+}
+
+//
+// Payments
+//
+
+model PaymentTransaction {
+  id            String @id @default(uuid())
+  applicationId String @unique
+
+  status PaymentStatus @default(REQUIRES_PAYMENT)
+  amount Int
+  // currency      String   @default("USD")
+
+  // processor fields (Stripe etc.)
+  // processor     String?  // "stripe"
+  // processorRef  String?  // payment_intent id, charge id, etc.
+
+  application PrivilegeApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//
+// Issued privileges + public verification
+//
+
+model Privilege {
+  id             String @id @default(uuid())
+  practitionerId String
+  remoteStateId  String
+
+  // tie back to the application and qualifying license at issuance time
+  applicationId       String @unique
+  qualifyingLicenseId String
+
+  // privilegeNumber String? @unique // optional; can be generated; not required for MVP
+  status PrivilegeStatus @default(ACTIVE)
+
+  issuedAt  DateTime  @default(now())
+  expiresAt DateTime?
+
+  practitioner      Practitioner         @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+  remoteState       MemberState          @relation(fields: [remoteStateId], references: [id])
+  application       PrivilegeApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  qualifyingLicense License              @relation("PrivilegeQualifyingLicense", fields: [qualifyingLicenseId], references: [id], onDelete: Restrict)
+
+  statusHistory PrivilegeStatusHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([remoteStateId, status])
+  @@index([practitionerId, status])
+}
+
+model PrivilegeStatusHistory {
+  id          String @id @default(uuid())
+  privilegeId String
+
+  status      PrivilegeStatus
+  reason      String?
+  actorUserId String?
+
+  privilege Privilege @relation(fields: [privilegeId], references: [id], onDelete: Cascade)
+  actor     User?     @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([privilegeId, createdAt])
 }
