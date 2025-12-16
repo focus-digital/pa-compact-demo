@@ -1,4 +1,4 @@
-# Typescript Backend Template
+# Physician Assistants Licensure Compact - Data System Demo
 
 ## Prerequisites
 - NodeJS
@@ -36,7 +36,6 @@ src/ → backend logic
 
 In the `backend` folder:
 1. run `cp .env-example .env` to duplicate local env variables, update as applicable
-1. globally rename ts-template.db to a sqlite database name of your preference
 1. run `yarn` to install all dependencies
 1. run `yarn db-reset` to run initial migration and data seed
 1. run `yarn api` to start the API at http://localhost:3000
@@ -45,6 +44,7 @@ In the `backend` folder:
 
 Then update the following files as necessary:
 *  `.env`
+* `package.json`
 * `README.md`
 * `AGENTS.md`
 
