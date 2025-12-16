@@ -1,0 +1,18 @@
+service: fst-api-demo
+
+volumes:
+  - /var/lib/fst/demo-data:/data
+
+registry:
+  server: ghcr.io
+  username: focus-digital
+  password:
+    - REGISTRY_PASSWORD
+
+env:
+  clear:
+    TENANT_ID: demo
+    ALLOWED_ORIGIN: "https://fst-demo.focus-labs.io"
+
+proxy:
+  host: fst-demo-api.focus-labs.io
