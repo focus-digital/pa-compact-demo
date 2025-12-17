@@ -6,8 +6,10 @@ CREATE TABLE "User" (
     "lastName" TEXT NOT NULL,
     "role" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
+    "memberStateId" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "User_memberStateId_fkey" FOREIGN KEY ("memberStateId") REFERENCES "MemberState" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -53,9 +55,22 @@ CREATE TABLE "QualifyingLicenseDesignation" (
     "licenseId" TEXT NOT NULL,
     "effectiveFrom" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "effectiveTo" DATETIME,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "QualifyingLicenseDesignation_practitionerId_fkey" FOREIGN KEY ("practitionerId") REFERENCES "Practitioner" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "QualifyingLicenseDesignation_licenseId_fkey" FOREIGN KEY ("licenseId") REFERENCES "License" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "QualifyingLicenseDesignationStatusHistory" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "designationId" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "reason" TEXT,
+    "actorUserId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "QualifyingLicenseDesignationStatusHistory_designationId_fkey" FOREIGN KEY ("designationId") REFERENCES "QualifyingLicenseDesignation" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "QualifyingLicenseDesignationStatusHistory_actorUserId_fkey" FOREIGN KEY ("actorUserId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -157,6 +172,9 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE INDEX "User_firstName_lastName_idx" ON "User"("firstName", "lastName");
 
 -- CreateIndex
+CREATE INDEX "User_memberStateId_idx" ON "User"("memberStateId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "MemberState_code_key" ON "MemberState"("code");
 
 -- CreateIndex
@@ -175,10 +193,13 @@ CREATE INDEX "License_issuingStateId_idx" ON "License"("issuingStateId");
 CREATE INDEX "License_licenseNumber_idx" ON "License"("licenseNumber");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "QualifyingLicenseDesignation_practitionerId_key" ON "QualifyingLicenseDesignation"("practitionerId");
+CREATE UNIQUE INDEX "QualifyingLicenseDesignation_licenseId_key" ON "QualifyingLicenseDesignation"("licenseId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "QualifyingLicenseDesignation_licenseId_key" ON "QualifyingLicenseDesignation"("licenseId");
+CREATE INDEX "QualifyingLicenseDesignation_practitionerId_idx" ON "QualifyingLicenseDesignation"("practitionerId");
+
+-- CreateIndex
+CREATE INDEX "QualifyingLicenseDesignationStatusHistory_designationId_createdAt_idx" ON "QualifyingLicenseDesignationStatusHistory"("designationId", "createdAt");
 
 -- CreateIndex
 CREATE INDEX "LicenseStatusHistory_licenseId_createdAt_idx" ON "LicenseStatusHistory"("licenseId", "createdAt");

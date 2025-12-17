@@ -1,5 +1,5 @@
 import type { UserRole } from "@/domain/enums.js";
-import type { User } from "@/domain/types.js"; 
+import type { Practitioner, User } from "@/domain/types.js"; 
 import type { PrismaClient } from "@prisma/client";
 
 export type UserCreate = {
@@ -9,6 +9,7 @@ export type UserCreate = {
   lastName: string;
   role: UserRole;
   passwordHash: string;
+  memberStateId?: string | null;
 }
 
 export class UserRepo {
@@ -17,6 +18,7 @@ export class UserRepo {
   async fetchById(id: string): Promise<User | undefined> {
     const userRow = await this.prisma.user.findUnique({
       where: { id },
+      include: { practitioner: true },
     });
 
     if (!userRow) {
@@ -30,6 +32,7 @@ export class UserRepo {
   async fetchByEmail(email: string): Promise<User | undefined> {
     const userRow = await this.prisma.user.findUnique({
       where: { email },
+      include: { practitioner: true },
     });
 
     if (!userRow) {
@@ -43,6 +46,7 @@ export class UserRepo {
   async fetchByEmailWithPassword(email: string): Promise<{ user: User; passwordHash: string }> {
     const userRow = await this.prisma.user.findUnique({
       where: { email },
+      include: { practitioner: true },
     });
 
     if (!userRow) {

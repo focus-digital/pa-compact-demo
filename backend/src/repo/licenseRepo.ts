@@ -8,8 +8,8 @@ export type LicenseCreate = {
   practitionerId: string;
   issuingStateId: string;
   licenseNumber: string;
-  issueDate?: Date | null;
-  expirationDate?: Date | null;
+  issueDate: Date;
+  expirationDate: Date;
   selfReportedStatus: LicenseSelfReportedStatus;
   verificationStatus?: LicenseVerificationStatus;
   evidenceUrl?: string | null;
@@ -18,6 +18,13 @@ export type LicenseCreate = {
 };
 
 export type LicenseUpdate = Partial<Omit<LicenseCreate, 'id'>>;
+
+export type LicenseListFilters = {
+  practitionerId?: string;
+  issuingStateId?: string;
+  verificationStatus?: LicenseVerificationStatus;
+  orderByExpiration?: 'asc' | 'desc';
+};
 
 export class LicenseRepo {
   constructor(private prisma: PrismaClient) {}
@@ -45,6 +52,21 @@ export class LicenseRepo {
       data,
     });
     return LicenseRepo.toDomain(row);
+  }
+
+  async list(filters: LicenseListFilters): Promise<License[]> {
+    const rows = await this.prisma.license.findMany({
+      where: {
+        practitionerId: filters.practitionerId,
+        issuingStateId: filters.issuingStateId,
+        verificationStatus: filters.verificationStatus,
+      },
+      orderBy: filters.orderByExpiration
+        ? { expirationDate: filters.orderByExpiration }
+        : undefined,
+    });
+
+    return rows.map(LicenseRepo.toDomain);
   }
 
   static toDomain(row: any): License {

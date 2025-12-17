@@ -14,7 +14,8 @@
     // Paths / aliases (project-root based)
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@tests/*": ["test/*"]
     },
 
     // DX & correctness
@@ -42,6 +43,6 @@
     "types": ["node"]
   },
   // Tell TS what to compile in dev (tests + prisma + src)
-  "include": ["src", "prisma", "tests", "scripts", "env.d.ts", "bcryptjs.d.ts"],
+  "include": ["src", "prisma", "node_modules/.prisma/client", "tests", "scripts", "env.d.ts", "bcryptjs.d.ts"],
   "exclude": ["dist", "node_modules"]
 }

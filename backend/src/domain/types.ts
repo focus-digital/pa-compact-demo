@@ -4,6 +4,7 @@ import {
   LicenseVerificationStatus,
   PaymentStatus,
   PrivilegeStatus,
+  QualifyingLicenseDesignationStatus,
   UserRole,
 } from './enums.js';
 
@@ -13,8 +14,11 @@ export type User = {
   firstName: string;
   lastName: string;
   role: UserRole;
+  memberStateId: string | null;
   createdAt: Date;
   updatedAt: Date;
+
+  practitioner?: Practitioner;
 };
 
 export type MemberState = {
@@ -28,7 +32,7 @@ export type MemberState = {
 
 export type Practitioner = {
   id: string;
-  userId: string;  
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -38,8 +42,8 @@ export type License = {
   practitionerId: string;
   issuingStateId: string;
   licenseNumber: string;
-  issueDate: Date | null;
-  expirationDate: Date | null;
+  issueDate: Date;
+  expirationDate: Date;
   selfReportedStatus: LicenseSelfReportedStatus;
   verificationStatus: LicenseVerificationStatus;
   evidenceUrl: string | null;
@@ -53,6 +57,16 @@ export type QualifyingLicenseDesignation = {
   licenseId: string;
   effectiveFrom: Date;
   effectiveTo: Date | null;
+  status: QualifyingLicenseDesignationStatus;
+  createdAt: Date;
+};
+
+export type QualifyingLicenseDesignationStatusHistory = {
+  id: string;
+  designationId: string;
+  status: QualifyingLicenseDesignationStatus;
+  reason: string | null;
+  actorUserId: string | null;
   createdAt: Date;
 };
 

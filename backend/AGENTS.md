@@ -5,6 +5,7 @@
 - Prisma: ORM
 - Fastify: API
 - SQlite: initial database
+- Vitest: test library
 
 ## Project Overview & Structure
 
@@ -22,6 +23,11 @@ src/ → backend logic
   repo/ → database interactions for each table through prisma, returns domain types
   service/ → application business logic, use one or more repos
   util/ → utility functions
+tests/ → test files
+  helpers/ → helper files
+  routes/ → route level tests
+  test-setup.ts → setup file
+vitest.config.ts → test configuration
 </pre>
 
 ## Development Environment & Setup

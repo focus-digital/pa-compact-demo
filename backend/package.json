@@ -10,8 +10,9 @@
     "db:reset": "rm -rf prisma/generated/ prisma/migrations/ prisma/pa-compact.db && npx prisma format && npx prisma migrate dev --name init && npx prisma generate",
     "db:studio": "npx prisma studio",
     "db:migrate": "npx prisma migrate dev",
-    "api": "tsx watch -r tsconfig-paths/register src/server.ts",
     "seed": "npx prisma db seed",
+    "api": "tsx watch -r tsconfig-paths/register src/server.ts",    
+    "test": "vitest",
     "build": "tsc -p tsconfig.json && tsc-alias",
     "start": "node dist/src/server.js",
     "docker:build": "docker build -t fst-api .",
@@ -40,7 +41,8 @@
     "prisma": "^6.17.0",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "vitest": "^4.0.16"
   },
   "dependencies": {
     "@fastify/cookie": "^10.0.0",

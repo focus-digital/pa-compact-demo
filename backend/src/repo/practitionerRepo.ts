@@ -26,6 +26,18 @@ export class PractitionerRepo {
     return PractitionerRepo.toDomain(row);
   }
 
+  async fetchByUserId(userId: string): Promise<Practitioner | undefined> {
+    const row = await this.prisma.practitioner.findUnique({
+      where: { userId },
+    });
+
+    if (!row) {
+      return;
+    }
+
+    return PractitionerRepo.toDomain(row);
+  }
+
   async create(data: PractitionerCreate): Promise<Practitioner> {
     const row = await this.prisma.practitioner.create({ data });
     return PractitionerRepo.toDomain(row);

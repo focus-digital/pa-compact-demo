@@ -1,15 +1,18 @@
-import { UserRole } from '@/domain/enums.js';
+import { LicenseSelfReportedStatus, LicenseVerificationStatus, UserRole } from '@/domain/enums.js';
 import { AuthService } from '@/service/authService.js';
+import { LicenseService } from '@/service/licenseService.js';
 import { PractitionerService } from '@/service/practitionerService.js';
 import { UserService } from '@/service/userService.js';
 import { PrismaClient } from '@prisma/client';
+import type { MemberState } from '@/domain/types.js';
 
 const prisma = new PrismaClient();
 const userService = new UserService(prisma);
 const practitionerService = new PractitionerService(prisma);
+const licenseService = new LicenseService(prisma);
 const PASSWORD = await AuthService.hashPassword('secret123');
 
-async function createUsers() {
+async function createUsers(memberStates: MemberState[]) {
   const practitioners = [
     { email: 'jdoe@example.com', firstName: 'Jane', lastName: 'Doe' },
     { email: 'jsmith@example.com', firstName: 'John', lastName: 'Smith' },
@@ -35,24 +38,100 @@ async function createUsers() {
     });
   }
 
-  const stateAdmins = [
-    { email: 'ma-admin@example.com', firstName: 'Mara', lastName: 'Adams' },
-    { email: 'ny-admin@example.com', firstName: 'Nia', lastName: 'Young' },
-    { email: 'ca-admin@example.com', firstName: 'Cam', lastName: 'Anderson' },
-  ];
-
-  for (const admin of stateAdmins) {
+  for (const state of memberStates) {
     await userService.ensureUser({
-      ...admin,
+      email: `${state.code.toLowerCase()}-admin@example.com`,
+      firstName: state.name,
+      lastName: 'Admin',
       role: UserRole.STATE_ADMIN,
       passwordHash: PASSWORD,
+      memberStateId: state.id,
     });
   }
 }
 
+async function createMemberStates() {
+  const states = [
+    { code: 'AR', name: 'Arkansas' },
+    { code: 'CO', name: 'Colorado' },
+    { code: 'CT', name: 'Connecticut' },
+    { code: 'DE', name: 'Delaware' },
+    { code: 'IA', name: 'Iowa' },
+    { code: 'KS', name: 'Kansas' },
+    { code: 'ME', name: 'Maine' },
+    { code: 'MN', name: 'Minnesota' },
+    { code: 'MT', name: 'Montana' },
+    { code: 'NE', name: 'Nebraska' },
+    { code: 'NC', name: 'North Carolina' },
+    { code: 'OH', name: 'Ohio' },
+    { code: 'OK', name: 'Oklahoma' },
+    { code: 'TN', name: 'Tennessee' },
+    { code: 'UT', name: 'Utah' },
+    { code: 'VA', name: 'Virginia' },
+    { code: 'WA', name: 'Washington' },
+    { code: 'WV', name: 'West Virginia' },
+    { code: 'WI', name: 'Wisconsin' },
+  ];
+
+  const createdStates: MemberState[] = [];
+
+  for (const state of states) {
+    const record = await prisma.memberState.upsert({
+      where: { code: state.code },
+      update: state,
+      create: state,
+    });
+    createdStates.push(record);
+  }
+
+  return createdStates;
+}
+
+async function addAndVerifyLicense(memberStates: MemberState[]) {
+  const practitioner = await prisma.practitioner.findFirst();
+  if (!practitioner) {
+    console.warn('No practitioner found to attach a license');
+    return;
+  }
+
+  const issuingState = memberStates[0];
+  if (!issuingState) {
+    console.warn('No member state found to attach a license');
+    return;
+  }
+
+  const issuingStateAdmin = await prisma.user.findUnique({
+    where: { email: `${issuingState.code.toLowerCase()}-admin@example.com` },
+  });
+
+  const license = await licenseService.addLicense({
+    practitionerId: practitioner.id,
+    issuingStateId: issuingState.id,
+    licenseNumber: `LIC-${issuingState.code}-001`,
+    selfReportedStatus: LicenseSelfReportedStatus.ACTIVE,
+    issueDate: new Date('2023-01-15'),
+    expirationDate: new Date('2026-01-14'),
+  });
+
+  await licenseService.verifyLicense({
+    licenseId: license.id,
+    verificationStatus: LicenseVerificationStatus.VERIFIED,
+    note: 'Seed verified license',
+    actorUserId: issuingStateAdmin?.id,
+  });
+
+  await licenseService.designateAsQualifyingLicense({
+    practitionerId: practitioner.id,
+    licenseId: license.id,
+    actorUserId: practitioner.userId,
+  });
+}
+
 async function main() {
   console.log("seed started");
-  await createUsers();
+  const memberStates = await createMemberStates();
+  await createUsers(memberStates);
+  await addAndVerifyLicense(memberStates);
   // userService.ensureUser({ email: 'jdoe@example.com', role: UserRole.PA, passwordHash: PASSWORD })
 }
 

@@ -12,4 +12,8 @@ export class PractitionerService {
   async createPractitioner(payload: PractitionerCreate): Promise<Practitioner> {
     return this.practitionerRepo.create(payload);
   }
+
+  async getByUserId(userId: string): Promise<Practitioner | undefined> {
+    return this.practitionerRepo.fetchByUserId(userId);
+  }
 }

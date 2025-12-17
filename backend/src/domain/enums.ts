@@ -34,6 +34,12 @@ export enum LicenseVerificationStatus {
   NOT_ELIGIBLE = 'NOT_ELIGIBLE',
 }
 
+export enum QualifyingLicenseDesignationStatus {
+  ACTIVE = 'ACTIVE',
+  EXPIRED = 'EXPIRED',
+  ARCHIVED = 'ARCHIVED',
+}
+
 export enum PaymentStatus {
   REQUIRES_PAYMENT = 'REQUIRES_PAYMENT',
   PENDING = 'PENDING',

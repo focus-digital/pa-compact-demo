@@ -48,6 +48,12 @@ enum LicenseVerificationStatus {
   NOT_ELIGIBLE
 }
 
+enum QualifyingLicenseDesignationStatus {
+  ACTIVE
+  EXPIRED
+  ARCHIVED
+}
+
 enum PaymentStatus {
   REQUIRES_PAYMENT
   PENDING
@@ -76,24 +82,28 @@ enum AuditAction {
 //
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  firstName    String
-  lastName     String
-  role         UserRole
-  passwordHash String
+  id            String   @id @default(uuid())
+  email         String   @unique
+  firstName     String
+  lastName      String
+  role          UserRole
+  passwordHash  String
+  memberStateId String?
 
   practitioner Practitioner?
+  memberState  MemberState?  @relation(fields: [memberStateId], references: [id])
 
   // TODO audit events?
 
-  createdAt                  DateTime                   @default(now())
-  updatedAt                  DateTime                   @updatedAt
-  licenseStatusHistories     LicenseStatusHistory[]
-  applicationStatusHistories ApplicationStatusHistory[]
-  privilegeStatusHistories   PrivilegeStatusHistory[]
+  createdAt                                   DateTime                                    @default(now())
+  updatedAt                                   DateTime                                    @updatedAt
+  licenseStatusHistories                      LicenseStatusHistory[]
+  applicationStatusHistories                  ApplicationStatusHistory[]
+  privilegeStatusHistories                    PrivilegeStatusHistory[]
+  qualifyingLicenseDesignationStatusHistories QualifyingLicenseDesignationStatusHistory[]
 
   @@index([firstName, lastName])
+  @@index([memberStateId])
 }
 
 //
@@ -107,6 +117,7 @@ model MemberState {
   isActive Boolean @default(true)
 
   // relations
+  users                 User[]
   licenses              License[]
   privilegeApplications PrivilegeApplication[]
   privileges            Privilege[]
@@ -126,13 +137,13 @@ model Practitioner {
   id     String @id @default(uuid())
   userId String @unique
 
-  // minimal profile fields for demo + public lookup  
+  // minimal profile fields for demo + public lookup
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // relations
   licenses                     License[]
-  qualifyingLicenseDesignation QualifyingLicenseDesignation?
+  qualifyingLicenseDesignation QualifyingLicenseDesignation[]
   applications                 PrivilegeApplication[]
   privileges                   Privilege[]
 
@@ -175,16 +186,35 @@ model License {
 
 model QualifyingLicenseDesignation {
   id             String @id @default(uuid())
-  practitionerId String @unique
+  practitionerId String
   licenseId      String @unique
 
-  effectiveFrom DateTime  @default(now())
+  effectiveFrom DateTime                           @default(now())
   effectiveTo   DateTime?
+  status        QualifyingLicenseDesignationStatus @default(ACTIVE)
 
   practitioner Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
   license      License      @relation(fields: [licenseId], references: [id], onDelete: Restrict)
 
+  createdAt     DateTime                                    @default(now())
+  statusHistory QualifyingLicenseDesignationStatusHistory[]
+
+  @@index([practitionerId])
+}
+
+model QualifyingLicenseDesignationStatusHistory {
+  id            String                             @id @default(uuid())
+  designationId String
+  status        QualifyingLicenseDesignationStatus
+  reason        String?
+  actorUserId   String?
+
+  designation QualifyingLicenseDesignation @relation(fields: [designationId], references: [id], onDelete: Cascade)
+  actor       User?                        @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
+
+  @@index([designationId, createdAt])
 }
 
 model LicenseStatusHistory {

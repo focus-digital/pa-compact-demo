@@ -34,7 +34,6 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<{ token: string; user: User }> {
     const record = await this.findUser(email);
-
     const passwordMatches = await bcrypt.compare(password, record.passwordHash);
     if (!passwordMatches) {
       throw new InvalidCredentialsError();
