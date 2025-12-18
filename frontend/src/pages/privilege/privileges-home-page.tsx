@@ -41,9 +41,9 @@ const applicationSchema = z.object({
   attestationType: z.string().min(1, 'Attestation type is required'),
   attestationText: z.string().optional(),
   applicantNote: z.string().optional(),
-  attestationAccepted: z.literal(true, {
-    errorMap: () => ({ message: 'You must accept the attestation' }),
-  }),
+  attestationAccepted: z.boolean().refine((val) => val === true, {
+    message: 'You must accept the attestation'
+  })
 });
 
 type ApplicationFormValues = z.infer<typeof applicationSchema>;
@@ -207,7 +207,7 @@ export function PrivilegesHomePage() {
         qualifyingLicenseId: values.qualifyingLicenseId,
         attestationType: values.attestationType,
         attestationText: values.attestationText,
-        attestationAccepted: values.attestationAccepted,
+        attestationAccepted:!!values.attestationAccepted,
         applicantNote: values.applicantNote,
       });
       applicationForm.reset({
@@ -332,7 +332,6 @@ export function PrivilegesHomePage() {
                         <td>
                           <Button
                             type="button"
-                            size="small"
                             disabled={verifyMutation.isPending}
                             onClick={() => onApproveApplication(row.id)}
                           >
@@ -363,7 +362,6 @@ export function PrivilegesHomePage() {
               {isPa && (
                 <Button
                   type="button"
-                  size="small"
                   className="align-self-start margin-top-1"
                   onClick={() => setShowApplicationForms((prev) => !prev)}
                 >
@@ -432,7 +430,7 @@ export function PrivilegesHomePage() {
                   <Grid row gap="md" className="margin-top-2">
                     <Grid tabletLg={{ col: 6 }}>
                       <Label htmlFor="attestationType">Attestation Type</Label>
-                      <TextInput id="attestationType" {...applicationForm.register('attestationType')} />
+                      <TextInput type="text" id="attestationType" {...applicationForm.register('attestationType')} />
                       {applicationForm.formState.errors.attestationType && (
                         <span className="text-red">
                           {applicationForm.formState.errors.attestationType.message}

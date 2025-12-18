@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -11,6 +11,7 @@ import {
   ModalToggleButton,
   type ModalRef,
   Label,
+  DatePicker,
   Select,
   Table,
   TextInput,
@@ -22,7 +23,6 @@ import {
   QualifyingLicenseDesignationStatus,
   UserRole,
 } from '@/shared/domain/enums';
-import type { License } from '@/shared/domain/types';
 import { useAuth } from '@/shared/hooks/auth-queries';
 import {
   useAddLicense,
@@ -61,6 +61,7 @@ export function LicenseHomePage() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<AddLicenseFormValues>({
@@ -155,7 +156,6 @@ export function LicenseHomePage() {
               {isPa && (
                 <Button
                   type="button"
-                  size="small"
                   className="align-self-start margin-top-1"
                   onClick={() => setShowAddForm((prev) => !prev)}
                 >
@@ -202,7 +202,7 @@ export function LicenseHomePage() {
                   </Grid>
                   <Grid tabletLg={{ col: 6 }}>
                     <Label htmlFor="licenseNumber">License Number</Label>
-                    <TextInput id="licenseNumber" {...register('licenseNumber')} />
+                    <TextInput id="licenseNumber" {...register('licenseNumber')} type="text" />
                     {errors.licenseNumber && (
                       <span className="text-red">{errors.licenseNumber.message}</span>
                     )}
@@ -211,14 +211,38 @@ export function LicenseHomePage() {
                 <Grid row gap="md" className="margin-top-1">
                   <Grid tabletLg={{ col: 6 }}>
                     <Label htmlFor="issueDate">Issue Date</Label>
-                    <TextInput id="issueDate" type="date" {...register('issueDate')} />
+                    <Controller
+                      control={control}
+                      name="issueDate"
+                      render={({ field }) => (
+                        <DatePicker
+                          id="issueDate"
+                          name={field.name}
+                          value={field.value}
+                          onChange={(value) => field.onChange(value ?? '')}
+                          onBlur={field.onBlur}
+                        />
+                      )}
+                    />
                     {errors.issueDate && (
                       <span className="text-red">{errors.issueDate.message}</span>
                     )}
                   </Grid>
                   <Grid tabletLg={{ col: 6 }}>
                     <Label htmlFor="expirationDate">Expiration Date</Label>
-                    <TextInput id="expirationDate" type="date" {...register('expirationDate')} />
+                    <Controller
+                      control={control}
+                      name="expirationDate"
+                      render={({ field }) => (
+                        <DatePicker
+                          id="expirationDate"
+                          name={field.name}
+                          value={field.value}
+                          onChange={(value) => field.onChange(value ?? '')}
+                          onBlur={field.onBlur}
+                        />
+                      )}
+                    />
                     {errors.expirationDate && (
                       <span className="text-red">{errors.expirationDate.message}</span>
                     )}
@@ -291,7 +315,6 @@ export function LicenseHomePage() {
                               {license.canVerify && (
                                 <Button
                                   type="button"
-                                  size="small"
                                   disabled={verifyMutation.isPending}
                                   onClick={() => onVerifyLicense(license.id)}
                                 >
@@ -300,11 +323,9 @@ export function LicenseHomePage() {
                               )}
                               {license.canDesignate && (
                                 <ModalToggleButton
-                                  modalId="designate-modal"
                                   modalRef={modalRef}
                                   opener
                                   type="button"
-                                  size="small"
                                   secondary
                                   disabled={designateMutation.isPending}
                                   onClick={() => {

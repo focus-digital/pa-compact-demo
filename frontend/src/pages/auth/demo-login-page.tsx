@@ -18,7 +18,6 @@ import {
 } from '@trussworks/react-uswds';
 
 import { useAuth } from '@/shared/hooks/auth-queries';
-import type { User } from '@/shared/domain/types';
 import { UserRole } from '@/shared/domain/enums';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getDemoUsers, resetDemoData } from '@/shared/api/demo-api';
@@ -124,8 +123,8 @@ export function DemoLoginPage() {
                   <input type="hidden" {...register('role')} value={role} readOnly />
                   <input type="hidden" {...register('password')} value="secret123" readOnly />
 
-                  <Label>Role</Label>
-                  <div className="display-flex flex-row flex-gap-2 margin-bottom-2">
+                  <Label htmlFor="demo-role-selector">Role</Label>
+                  <div className="display-flex flex-row flex-gap-2 margin-bottom-2" id="demo-role-selector">
                     <Radio
                       id="demo-role-pa"
                       name="role"
@@ -196,8 +195,8 @@ export function DemoLoginPage() {
           <ModalToggleButton modalRef={resetModalRef} type="button" outline>
             Cancel
           </ModalToggleButton>
-          <Button type="button" onClick={handleResetConfirm} disabled={resetMutation.isLoading}>
-            {resetMutation.isLoading ? 'Resetting…' : 'Yes, reset data'}
+          <Button type="button" onClick={handleResetConfirm} disabled={resetMutation.isPending}>
+            {resetMutation.isPending ? 'Resetting…' : 'Yes, reset data'}
           </Button>
         </ModalFooter>
       </Modal>

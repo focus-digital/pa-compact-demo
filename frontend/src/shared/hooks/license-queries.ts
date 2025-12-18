@@ -9,7 +9,6 @@ import {
   type VerifyLicensePayload,
 } from '../api/license-api';
 import type { LicenseVerificationStatus } from '../domain/enums';
-import type { License } from '../domain/types';
 import { queryClient } from './queryClient';
 
 const LICENSES_QUERY_KEY = ['licenses'];
