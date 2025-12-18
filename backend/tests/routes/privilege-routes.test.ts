@@ -352,8 +352,8 @@ describe('Privilege routes', () => {
       expect(response.statusCode).toBe(200);
       const applications = response.json() as PrivilegeApplication[];
       expect(applications).toHaveLength(1);
-      expect(applications[0].id).toBe(applicationId1);
-      expect(applications[0].remoteStateId).toBe(remoteStateId);
+      expect(applications[0]?.id).toBe(applicationId1);
+      expect(applications[0]?.remoteStateId).toBe(remoteStateId);
     });
 
     it('lists issued privileges for a practitioner', async () => {
@@ -366,7 +366,7 @@ describe('Privilege routes', () => {
       expect(response.statusCode).toBe(200);
       const privileges = response.json() as Privilege[];
       expect(privileges).toHaveLength(1);
-      expect(privileges[0].applicationId).toBe(applicationId1);
+      expect(privileges[0]?.applicationId).toBe(applicationId1);
     });
 
     it('rejects listing privileges for non-PAs', async () => {

@@ -50,8 +50,8 @@ describe('Member state routes', () => {
     expect(response.statusCode).toBe(200);
     const states = response.json() as Array<{ code: string; isActive: boolean }>;
     expect(states).toHaveLength(2);
-    expect(states[0].code).toBe('CO');
-    expect(states[1].code).toBe('MA');
+    expect(states[0]?.code).toBe('CO');
+    expect(states[1]?.code).toBe('MA');
     expect(states.every((state) => state.isActive)).toBe(true);
   });
 });

@@ -1,7 +1,7 @@
-service: fst-api-demo
+service: pa-compact-demo-api
 
 volumes:
-  - /var/lib/fst/demo-data:/data
+  - /var/lib/fst/pa-compact-demo-data:/data
 
 registry:
   server: ghcr.io
@@ -12,7 +12,7 @@ registry:
 env:
   clear:
     TENANT_ID: demo
-    ALLOWED_ORIGIN: "https://fst-demo.focus-labs.io"
+    ALLOWED_ORIGIN: "https://pa-compact-demo-api"
 
 proxy:
-  host: fst-demo-api.focus-labs.io
+  host: pa-compact-demo-api.focus-labs.io

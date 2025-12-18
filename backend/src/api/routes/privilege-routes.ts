@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 
 import { ApplicationStatus, UserRole } from '@/domain/enums.js';
 import type { Privilege, PrivilegeApplication } from '@/domain/types.js';
-import type { PrivilegeService } from '@/service/privilegeService.js';
+import type { ApplyPrivilegeInput, PrivilegeService, VerifyApplicationInput } from '@/service/privilegeService.js';
 
 export interface PrivilegeRoutesDependencies {
   privilegeService: PrivilegeService;
@@ -14,7 +14,7 @@ export function privilegeRoutes(
 ): void {
   const { privilegeService } = options.dependencies;
 
-  fastify.get<{ Reply: Privilege[] | { error: string } }>(
+  fastify.get<{ Querystring: Record<string, never>; Reply: Privilege[] | { error: string } }>(
     '/privileges',
     {
       schema: {
@@ -43,7 +43,7 @@ export function privilegeRoutes(
     },
   );
 
-  fastify.get<{ Reply: PrivilegeApplication[] | { error: string } }>(
+  fastify.get<{ Querystring: Record<string, never>; Reply: PrivilegeApplication[] | { error: string } }>(
     '/privileges/applications',
     {
       schema: {
@@ -73,7 +73,7 @@ export function privilegeRoutes(
     },
   );
 
-  fastify.get<{ Reply: PrivilegeApplication[] | { error: string } }>(
+  fastify.get<{ Querystring: Record<string, never>; Reply: PrivilegeApplication[] | { error: string } }>(
     '/privileges/review',
     {
       schema: {
@@ -110,7 +110,10 @@ export function privilegeRoutes(
     },
   );
 
-  fastify.post(
+  fastify.post<{
+    Body: ApplyPrivilegeInput
+    Reply: PrivilegeApplication | { error: string };
+  }>(
     '/privileges/apply',
     {
       schema: {
@@ -147,7 +150,10 @@ export function privilegeRoutes(
     },
   );
 
-  fastify.post(
+  fastify.post<{
+    Body: { applicationId: string; amount: number };
+    Reply: PrivilegeApplication | { error: string };
+  }>(
     '/privileges/pay',
     {
       schema: {
@@ -173,7 +179,12 @@ export function privilegeRoutes(
     },
   );
 
-  fastify.post(
+  fastify.post<{
+    Body: VerifyApplicationInput;
+    Reply:
+      | { application: PrivilegeApplication; privilege?: Privilege }
+      | { error: string };
+  }>(
     '/privileges/verify',
     {
       schema: {
