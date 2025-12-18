@@ -13,8 +13,10 @@ import { AuthService } from '@/service/authService.js';
 import { authRoutes } from '@/api/routes/auth-routes.js';
 import { userRoutes } from '@/api/routes/user-routes.js';
 import { licenseRoutes } from '@/api/routes/license-routes.js';
+import { memberStateRoutes } from '@/api/routes/member-state-routes.js';
 import { LicenseService } from '@/service/licenseService.js';
 import { PractitionerService } from './service/practitionerService.js';
+import { MemberStateService } from './service/memberStateService.js';
 
 export interface ServerDependencies {
   prisma?: PrismaClient;
@@ -22,6 +24,7 @@ export interface ServerDependencies {
   authService?: AuthService;
   practitionerService?: PractitionerService;
   licenseService?: LicenseService;
+  memberStateService?: MemberStateService;
 }
 
 const API_ROUTE_PREFIX = { prefix: '' };
@@ -87,6 +90,8 @@ export function buildServer(
     dependencies.licenseService ?? new LicenseService(prisma);
   const practitionerService =
     dependencies.practitionerService ?? new PractitionerService(prisma);
+  const memberStateService =
+    dependencies.memberStateService ?? new MemberStateService(prisma);
 
   // middleware
   setupUserAuth(fastify, { authService });
@@ -117,6 +122,10 @@ export function buildServer(
   fastify.register(authRoutes, { dependencies: { authService, userService }, ...API_ROUTE_PREFIX });
   fastify.register(userRoutes, { dependencies: { userService }, ...API_ROUTE_PREFIX });
   fastify.register(licenseRoutes, { dependencies: { licenseService }, ...API_ROUTE_PREFIX });
+  fastify.register(memberStateRoutes, {
+    dependencies: { memberStateService },
+    ...API_ROUTE_PREFIX,
+  });
 
   fastify.addHook('onClose', async () => {
     if (!dependencies.prisma) {

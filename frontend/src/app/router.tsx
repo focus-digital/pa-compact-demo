@@ -6,6 +6,7 @@ import { HomePage } from '@/pages/home/home-page'
 import { LoginPage } from '@/pages/auth/login-page'
 import { useAuth } from '@/shared/hooks/auth-queries'
 import { ApplyPage } from '@/pages/apply/apply-page'
+import { LicenseHomePage } from '@/pages/license/license-home'
 
 const ROUTES = [    
   {
@@ -19,6 +20,10 @@ const ROUTES = [
       {
         path: '/apply',
         element: <ApplyPage />
+      },
+      {
+        path: '/licenses',
+        element: <LicenseHomePage />,
       },
       {
         path: '/login',
@@ -44,7 +49,7 @@ export function AppRouter() {
     return <Navigate to="/login" replace state={{ from: next }} />
   }
   else if (user && isAlreadyOnLogin) {
-    return <Navigate to="/" replace state={{ from: next }} />
+    return <Navigate to="/licenses" replace state={{ from: next }} />
   }  
 
   return <Suspense fallback={<div>Loading...</div>}>{element}</Suspense>

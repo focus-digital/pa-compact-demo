@@ -35,6 +35,7 @@ export type Practitioner = {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
+  user?: Pick<User, 'id' | 'email' | 'firstName' | 'lastName'>;
 };
 
 export type License = {
@@ -49,6 +50,9 @@ export type License = {
   evidenceUrl: string | null;
   createdAt: Date;
   updatedAt: Date;
+
+  issuingState: MemberState;
+  qualifyingDesignations: QualifyingLicenseDesignation[]
 };
 
 export type QualifyingLicenseDesignation = {

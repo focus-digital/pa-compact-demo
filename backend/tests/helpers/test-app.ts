@@ -8,6 +8,7 @@ import { UserService } from '@/service/userService.js';
 import { AuthService } from '@/service/authService.js';
 import { LicenseService } from '@/service/licenseService.js';
 import { PractitionerService } from '@/service/practitionerService.js';
+import { MemberStateService } from '@/service/memberStateService.js';
 
 /**
  * Creates a fresh Fastify app instance for testing
@@ -17,12 +18,13 @@ export async function createTestApp(): Promise<{ app: FastifyInstance, appDepend
   const authService = new AuthService(prisma);
   const licenseService = new LicenseService(prisma);
   const practitionerService = new PractitionerService(prisma);
+  const memberStateService = new MemberStateService(prisma);
   const app = buildServer({ logger: false }, { 
-    prisma, userService, authService, licenseService, practitionerService
+    prisma, userService, authService, licenseService, practitionerService, memberStateService
   });
   
   await app.ready()
-  return { app, appDependencies: { userService, authService, licenseService, practitionerService }};
+  return { app, appDependencies: { userService, authService, licenseService, practitionerService, memberStateService }};
 }
 
 export async function login(app: FastifyInstance, email: string, password: string): Promise<string> {

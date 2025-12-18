@@ -10,7 +10,8 @@ type HeaderProps = {
 
 export function PageHeader({ user, mobileNavOpen, onLogout }: HeaderProps) {
   const primaryNavItems = [
-    <RouterLink key="primaryNav_2" className="usa-nav__link" to="/"><span>Home</span></RouterLink>,
+    // <RouterLink key="primaryNav_2" className="usa-nav__link" to="/"><span>Home</span></RouterLink>,
+    <RouterLink key="primaryNav_2" className="usa-nav__link" to="licenses"><span>Licenses</span></RouterLink>,
     <RouterLink key="primaryNav_2" className="usa-nav__link" to="apply"><span>Apply</span></RouterLink>
   ];
   const secondaryNavItems = [<a key="secondaryNav_0" href="">
@@ -29,11 +30,11 @@ export function PageHeader({ user, mobileNavOpen, onLogout }: HeaderProps) {
         <div className="usa-navbar">
           <Title id="basic-logo">
             <a href="javascript:void(0);" title="Home" aria-label="Home">
-              {'<Project title>'}
+              {'Licensure System'}
             </a>
           </Title>
           <p>
-            U.S. Department of {'<Name>'}
+            PA Compact Commission
           </p>
         </div>
         {(user !== null) && (

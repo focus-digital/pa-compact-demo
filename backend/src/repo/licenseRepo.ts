@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client";
+import { QualifyingLicenseDesignationStatus, type PrismaClient } from "@prisma/client";
 
 import type { License } from "@/domain/types.js";
 import type { LicenseSelfReportedStatus, LicenseVerificationStatus } from "@/domain/enums.js";
@@ -29,9 +29,31 @@ export type LicenseListFilters = {
 export class LicenseRepo {
   constructor(private prisma: PrismaClient) {}
 
+  private baseInclude = {
+    issuingState: true,
+    qualifyingDesignations: {
+      where: {
+        status: QualifyingLicenseDesignationStatus.ACTIVE
+      }
+    },
+    practitioner: {
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    },
+  } as const;
+
   async fetchById(id: string): Promise<License | undefined> {
     const row = await this.prisma.license.findUnique({
       where: { id },
+      include: this.baseInclude,
     });
 
     if (!row) {
@@ -61,6 +83,7 @@ export class LicenseRepo {
         issuingStateId: filters.issuingStateId,
         verificationStatus: filters.verificationStatus,
       },
+      include: this.baseInclude,
       orderBy: filters.orderByExpiration
         ? { expirationDate: filters.orderByExpiration }
         : undefined,

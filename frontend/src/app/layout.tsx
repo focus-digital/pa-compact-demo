@@ -18,19 +18,19 @@ export function AppLayout({ children }: AppLayoutProps) {
       <a className="usa-skipnav" href="#main-content">
         Skip to main content
       </a>
-      <GovBanner />
+      {/* <GovBanner /> */}
 
       <PageHeader user={user} mobileNavOpen={mobileNavOpen} onLogout={() => logout()} />
       
       {children ? children : <Outlet /> }
 
       <Identifier>
-        <IdentifierMasthead aria-label="Agency identifier">
-          <IdentifierIdentity domain={'<domain.gov>'}>
+        {/* <IdentifierMasthead aria-label="Agency identifier">
+          <IdentifierIdentity domain={'https://www.pacompact.org/'}>
             <span aria-hidden="true">An</span> official website of the{' '}
             <Link href="javascript:void(0);">{`<Parent agency>`}</Link>
           </IdentifierIdentity>
-        </IdentifierMasthead>
+        </IdentifierMasthead> */}
         <IdentifierLinks navProps={{
         'aria-label': 'Important links'
       }}>
@@ -38,7 +38,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               <Link href="javascript:void(0);">{text}</Link>
             </IdentifierLinkItem>)}
         </IdentifierLinks>
-        <IdentifierGov aria-label="U.S. government information and services">
+        {/* <IdentifierGov aria-label="U.S. government information and services">
           <div className="usa-identifier__usagov-description">
             Looking for U.S. government information and services?
           </div>
@@ -46,7 +46,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <Link href="javascript:void(0);" className="usa-link">
             Visit USA.gov
           </Link>
-        </IdentifierGov>
+        </IdentifierGov> */}
       </Identifier>
     </>;
 }

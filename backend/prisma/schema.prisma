@@ -171,9 +171,9 @@ model License {
 
   // relations
   // TODO statusHistory LicenseStatusHistory[]?
-  usedByApplications    PrivilegeApplication[]        @relation("ApplicationQualifyingLicense")
-  usedByPrivileges      Privilege[]                   @relation("PrivilegeQualifyingLicense")
-  qualifyingDesignation QualifyingLicenseDesignation?
+  usedByApplications     PrivilegeApplication[]         @relation("ApplicationQualifyingLicense")
+  usedByPrivileges       Privilege[]                    @relation("PrivilegeQualifyingLicense")
+  qualifyingDesignations QualifyingLicenseDesignation[]
 
   createdAt              DateTime               @default(now())
   updatedAt              DateTime               @updatedAt

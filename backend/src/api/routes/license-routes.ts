@@ -79,6 +79,7 @@ export function licenseRoutes(
         return licenses;
       } catch (error) {
         request.log.error({ err: error }, 'failed to fetch licenses');
+        console.log('error', error);
         const message = error instanceof Error ? error.message : 'Failed to fetch licenses';
         const statusCode = message.includes('Unauthorized') ? 403 : 400;
         return reply.code(statusCode).send({ error: message });
