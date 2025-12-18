@@ -37,6 +37,40 @@ export class PrivilegeApplicationRepo {
     return PrivilegeApplicationRepo.toDomain(row);
   }
 
+  async listByPractitionerId(practitionerId: string): Promise<PrivilegeApplication[]> {
+    const rows = await this.prisma.privilegeApplication.findMany({
+      where: { practitionerId },
+      include: {
+        remoteState: true,
+        qualifyingLicense: true,
+        payment: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map(PrivilegeApplicationRepo.toDomain);
+  }
+
+  async listByRemoteStateId(remoteStateId: string, status?: ApplicationStatus): Promise<PrivilegeApplication[]> {
+    const rows = await this.prisma.privilegeApplication.findMany({
+      where: {
+        remoteStateId,
+        ...(status ? { status } : {}),
+      },
+      include: {
+        remoteState: true,
+        practitioner: {
+          include: {
+            user: true,
+          },
+        },
+        qualifyingLicense: true,
+        payment: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map(PrivilegeApplicationRepo.toDomain);
+  }
+
   async update(id: string, data: PrivilegeApplicationUpdate): Promise<PrivilegeApplication> {
     const row = await this.prisma.privilegeApplication.update({
       where: { id },

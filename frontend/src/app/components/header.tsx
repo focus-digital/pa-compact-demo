@@ -12,7 +12,7 @@ export function PageHeader({ user, mobileNavOpen, onLogout }: HeaderProps) {
   const primaryNavItems = [
     // <RouterLink key="primaryNav_2" className="usa-nav__link" to="/"><span>Home</span></RouterLink>,
     <RouterLink key="primaryNav_2" className="usa-nav__link" to="licenses"><span>Licenses</span></RouterLink>,
-    <RouterLink key="primaryNav_2" className="usa-nav__link" to="apply"><span>Apply</span></RouterLink>
+    <RouterLink key="primaryNav_2" className="usa-nav__link" to="privileges"><span>Privileges</span></RouterLink>
   ];
   const secondaryNavItems = [<a key="secondaryNav_0" href="">
       {user?.email}

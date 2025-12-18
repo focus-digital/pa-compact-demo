@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,6 +9,10 @@ import {
   Grid,
   GridContainer,
   Label,
+  Modal,
+  ModalFooter,
+  ModalToggleButton,
+  type ModalRef,
   Radio,
   Select,
 } from '@trussworks/react-uswds';
@@ -16,8 +20,9 @@ import {
 import { useAuth } from '@/shared/hooks/auth-queries';
 import type { User } from '@/shared/domain/types';
 import { UserRole } from '@/shared/domain/enums';
-import { useQuery } from '@tanstack/react-query';
-import { getDemoUsers } from '@/shared/api/demo-api';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { getDemoUsers, resetDemoData } from '@/shared/api/demo-api';
+import { queryClient } from '@/shared/hooks/queryClient';
 
 const demoLoginSchema = z.object({
   role: z.nativeEnum(UserRole),
@@ -30,6 +35,7 @@ type DemoLoginValues = z.infer<typeof demoLoginSchema>;
 export function DemoLoginPage() {
   const { login } = useAuth();
   const [role, setRole] = useState<UserRole>(UserRole.PA);
+  const resetModalRef = useRef<ModalRef>(null);
 
   const { data: users = [] } = useQuery({
     queryKey: ['demo-users'],
@@ -86,6 +92,26 @@ export function DemoLoginPage() {
     await login(values);
   }
 
+  const resetMutation = useMutation({
+    mutationFn: async () => {
+      await resetDemoData();
+      await queryClient.invalidateQueries({ queryKey: ['demo-users'] });
+      await queryClient.invalidateQueries({ queryKey: ['me'] });
+    },
+    onSuccess: () => {
+      resetModalRef.current?.toggleModal();
+    },
+  });
+
+  async function handleResetConfirm() {
+    try {
+      await resetMutation.mutateAsync();
+    } catch (error) {
+      console.error('Failed to reset demo data', error);
+      alert('Reset failed. Please try again.');
+    }
+  }
+
   return (
     <main id="main-content">
       <GridContainer className="usa-section">
@@ -140,9 +166,41 @@ export function DemoLoginPage() {
                 </Fieldset>
               </Form>
             </div>
+            <div className="margin-top-2 text-center">
+              <Button
+                type="button"
+                style={{ backgroundColor: '#b50909', borderColor: '#b50909' }}
+                className="text-white"
+                onClick={() => resetModalRef.current?.toggleModal()}
+              >
+                Reset Data
+              </Button>
+            </div>
           </Grid>
         </Grid>
       </GridContainer>
+      <Modal
+        ref={resetModalRef}
+        id="reset-demo-modal"
+        aria-labelledby="reset-demo-modal-heading"
+        forceAction
+      >
+        <h2 id="reset-demo-modal-heading" className="margin-top-0">
+          Confirm Reset
+        </h2>
+        <p>
+          This will remove any license and privilege related data that was created in this demo
+          application and reset to the original state. Are you sure you want to proceed?
+        </p>
+        <ModalFooter>
+          <ModalToggleButton modalRef={resetModalRef} type="button" outline>
+            Cancel
+          </ModalToggleButton>
+          <Button type="button" onClick={handleResetConfirm} disabled={resetMutation.isLoading}>
+            {resetMutation.isLoading ? 'Resetting…' : 'Yes, reset data'}
+          </Button>
+        </ModalFooter>
+      </Modal>
     </main>
   );
 }

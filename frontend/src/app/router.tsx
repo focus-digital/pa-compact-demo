@@ -8,6 +8,7 @@ import { DemoLoginPage } from '@/pages/auth/demo-login-page'
 import { useAuth } from '@/shared/hooks/auth-queries'
 import { ApplyPage } from '@/pages/apply/apply-page'
 import { LicenseHomePage } from '@/pages/license/license-home'
+import { PrivilegesHomePage } from '@/pages/privilege/privileges-home-page'
 
 const ROUTES = [    
   {
@@ -25,6 +26,10 @@ const ROUTES = [
       {
         path: '/licenses',
         element: <LicenseHomePage />,
+      },
+      {
+        path: '/privileges',
+        element: <PrivilegesHomePage />,
       },
       {
         path: '/login',

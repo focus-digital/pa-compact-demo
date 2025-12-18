@@ -14,10 +14,18 @@ import { queryClient } from './queryClient';
 
 const LICENSES_QUERY_KEY = ['licenses'];
 
-export function useLicenses(status?: LicenseVerificationStatus) {
+type UseLicensesOptions = {
+  enabled?: boolean;
+};
+
+export function useLicenses(
+  status?: LicenseVerificationStatus,
+  options?: UseLicensesOptions,
+) {
   return useQuery({
     queryKey: status ? [...LICENSES_QUERY_KEY, { status }] : LICENSES_QUERY_KEY,
     queryFn: () => getLicenses(status),
+    enabled: options?.enabled ?? true,
   });
 }
 

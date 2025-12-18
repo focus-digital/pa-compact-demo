@@ -29,6 +29,18 @@ export class PaymentTransactionRepo {
     return PaymentTransactionRepo.toDomain(row);
   }
 
+  async fetchByApplicationId(applicationId: string): Promise<PaymentTransaction | undefined> {
+    const row = await this.prisma.paymentTransaction.findUnique({
+      where: { applicationId },
+    });
+
+    if (!row) {
+      return;
+    }
+
+    return PaymentTransactionRepo.toDomain(row);
+  }
+
   async create(data: PaymentTransactionCreate): Promise<PaymentTransaction> {
     const row = await this.prisma.paymentTransaction.create({ data });
     return PaymentTransactionRepo.toDomain(row);

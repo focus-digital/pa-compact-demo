@@ -97,6 +97,10 @@ export type PrivilegeApplication = {
   reviewerNote: string | null;
   createdAt: ISODateString;
   updatedAt: ISODateString;
+  practitioner?: Practitioner;
+  remoteState?: MemberState;
+  qualifyingLicense?: License;
+  payment?: PaymentTransaction | null;
 };
 
 export type ApplicationStatusHistory = {
@@ -137,6 +141,9 @@ export type Privilege = {
   expiresAt: ISODateString | null;
   createdAt: ISODateString;
   updatedAt: ISODateString;
+  remoteState?: MemberState;
+  qualifyingLicense?: License;
+  application?: PrivilegeApplication;
 };
 
 export type PrivilegeStatusHistory = {

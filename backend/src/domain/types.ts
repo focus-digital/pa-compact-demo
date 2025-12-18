@@ -94,6 +94,10 @@ export type PrivilegeApplication = {
   reviewerNote: string | null;
   createdAt: Date;
   updatedAt: Date;
+  practitioner?: Practitioner;
+  remoteState?: MemberState;
+  qualifyingLicense?: License;
+  payment?: PaymentTransaction | null;
 };
 
 export type ApplicationStatusHistory = {
@@ -134,6 +138,10 @@ export type Privilege = {
   expiresAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
+  practitioner?: Practitioner;
+  remoteState?: MemberState;
+  application?: PrivilegeApplication;
+  qualifyingLicense?: License;
 };
 
 export type PrivilegeStatusHistory = {

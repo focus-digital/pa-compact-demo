@@ -38,6 +38,19 @@ export class PrivilegeRepo {
     return PrivilegeRepo.toDomain(row);
   }
 
+  async listByPractitionerId(practitionerId: string): Promise<Privilege[]> {
+    const rows = await this.prisma.privilege.findMany({
+      where: { practitionerId },
+      include: {
+        remoteState: true,
+        qualifyingLicense: true,
+        application: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map(PrivilegeRepo.toDomain);
+  }
+
   async update(id: string, data: PrivilegeUpdate): Promise<Privilege> {
     const row = await this.prisma.privilege.update({
       where: { id },
