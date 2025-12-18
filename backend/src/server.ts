@@ -13,6 +13,7 @@ import { AuthService } from '@/service/authService.js';
 import { authRoutes } from '@/api/routes/auth-routes.js';
 import { userRoutes } from '@/api/routes/user-routes.js';
 import { licenseRoutes } from '@/api/routes/license-routes.js';
+import { demoRoutes } from '@/api/routes/demo-routes.js';
 import { memberStateRoutes } from '@/api/routes/member-state-routes.js';
 import { LicenseService } from '@/service/licenseService.js';
 import { PractitionerService } from './service/practitionerService.js';
@@ -28,7 +29,7 @@ export interface ServerDependencies {
 }
 
 const API_ROUTE_PREFIX = { prefix: '' };
-export const AUTH_EXEMPT_PATHS = ['/health', '/login', '/logout', '/docs'];
+export const AUTH_EXEMPT_PATHS = ['/health', '/login', '/logout', '/demo', '/docs'];
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN;
 const allowedOrigins = ALLOWED_ORIGIN ? [ALLOWED_ORIGIN] : [];
 
@@ -122,6 +123,10 @@ export function buildServer(
   fastify.register(authRoutes, { dependencies: { authService, userService }, ...API_ROUTE_PREFIX });
   fastify.register(userRoutes, { dependencies: { userService }, ...API_ROUTE_PREFIX });
   fastify.register(licenseRoutes, { dependencies: { licenseService }, ...API_ROUTE_PREFIX });
+  fastify.register(demoRoutes, {
+    dependencies: { userService },
+    ...API_ROUTE_PREFIX,
+  });
   fastify.register(memberStateRoutes, {
     dependencies: { memberStateService },
     ...API_ROUTE_PREFIX,

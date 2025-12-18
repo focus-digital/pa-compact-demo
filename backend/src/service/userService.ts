@@ -26,4 +26,8 @@ export class UserService {
 
     return this.userRepo.create(createPayload);
   }
+
+  async listUsers(): Promise<User[]> {
+    return this.userRepo.fetchAll();
+  }
 }

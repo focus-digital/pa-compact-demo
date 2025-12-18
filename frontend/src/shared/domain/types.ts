@@ -20,6 +20,7 @@ export type User = {
   createdAt: ISODateString;
   updatedAt: ISODateString;
   practitioner?: Practitioner | null;
+  memberState?: MemberState | null;
 };
 
 export type MemberState = {

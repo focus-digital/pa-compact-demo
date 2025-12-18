@@ -19,6 +19,7 @@ export type User = {
   updatedAt: Date;
 
   practitioner?: Practitioner;
+  memberState?: MemberState | null;
 };
 
 export type MemberState = {

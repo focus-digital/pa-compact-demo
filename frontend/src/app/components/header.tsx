@@ -25,7 +25,7 @@ export function PageHeader({ user, mobileNavOpen, onLogout }: HeaderProps) {
   };
 
   return (
-    <Header basic showMobileOverlay={mobileNavOpen}>
+    <Header basic showMobileOverlay={mobileNavOpen} className="border-bottom border-base-lighter">
       <div className="usa-nav-container">
         <div className="usa-navbar">
           <Title id="basic-logo">

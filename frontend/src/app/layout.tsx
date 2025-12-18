@@ -14,7 +14,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   
   const identifierLinksText = ['About <Parent shortname>', 'Accessibility support', 'FOIA requests', 'No FEAR Act data', 'Office of the Inspector General', 'Performance reports', 'Privacy policy'];
 
-  return <>
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <a className="usa-skipnav" href="#main-content">
         Skip to main content
       </a>
@@ -22,31 +23,23 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       <PageHeader user={user} mobileNavOpen={mobileNavOpen} onLogout={() => logout()} />
       
-      {children ? children : <Outlet /> }
+      <div style={{ flex: 1 }}>
+        {children ? children : <Outlet />}
+      </div>
 
-      <Identifier>
-        {/* <IdentifierMasthead aria-label="Agency identifier">
-          <IdentifierIdentity domain={'https://www.pacompact.org/'}>
-            <span aria-hidden="true">An</span> official website of the{' '}
-            <Link href="javascript:void(0);">{`<Parent agency>`}</Link>
-          </IdentifierIdentity>
-        </IdentifierMasthead> */}
-        <IdentifierLinks navProps={{
-        'aria-label': 'Important links'
-      }}>
-          {identifierLinksText.map((text, idx) => <IdentifierLinkItem key={idx}>
+      <Identifier className="border-top border-base-lighter padding-top-2">
+        <IdentifierLinks
+          navProps={{
+            'aria-label': 'Important links',
+          }}
+        >
+          {identifierLinksText.map((text, idx) => (
+            <IdentifierLinkItem key={idx}>
               <Link href="javascript:void(0);">{text}</Link>
-            </IdentifierLinkItem>)}
+            </IdentifierLinkItem>
+          ))}
         </IdentifierLinks>
-        {/* <IdentifierGov aria-label="U.S. government information and services">
-          <div className="usa-identifier__usagov-description">
-            Looking for U.S. government information and services?
-          </div>
-          &nbsp;
-          <Link href="javascript:void(0);" className="usa-link">
-            Visit USA.gov
-          </Link>
-        </IdentifierGov> */}
       </Identifier>
-    </>;
+    </div>
+  );
 }

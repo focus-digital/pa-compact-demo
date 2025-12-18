@@ -18,7 +18,7 @@ export class UserRepo {
   async fetchById(id: string): Promise<User | undefined> {
     const userRow = await this.prisma.user.findUnique({
       where: { id },
-      include: { practitioner: true },
+      include: { practitioner: true, memberState: true },
     });
 
     if (!userRow) {
@@ -32,7 +32,7 @@ export class UserRepo {
   async fetchByEmail(email: string): Promise<User | undefined> {
     const userRow = await this.prisma.user.findUnique({
       where: { email },
-      include: { practitioner: true },
+      include: { practitioner: true, memberState: true },
     });
 
     if (!userRow) {
@@ -46,7 +46,7 @@ export class UserRepo {
   async fetchByEmailWithPassword(email: string): Promise<{ user: User; passwordHash: string }> {
     const userRow = await this.prisma.user.findUnique({
       where: { email },
-      include: { practitioner: true },
+      include: { practitioner: true, memberState: true },
     });
 
     if (!userRow) {
@@ -71,5 +71,13 @@ export class UserRepo {
   static toDomain(row: any): User {
     const { passwordHash, ...rest } = row;
     return rest;
+  }
+
+  async fetchAll(): Promise<User[]> {
+    const rows = await this.prisma.user.findMany({
+      include: { practitioner: true, memberState: true },
+    });
+
+    return rows.map(UserRepo.toDomain);
   }
 }

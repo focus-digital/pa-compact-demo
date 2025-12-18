@@ -12,9 +12,9 @@ export function AppProviders({ children }: AppProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {import.meta.env.DEV ? (
+      {/* {import.meta.env.DEV ? (
         <ReactQueryDevtools buttonPosition="bottom-left" initialIsOpen={false} />
-      ) : null}
+      ) : null} */}
     </QueryClientProvider>
   )
 }
