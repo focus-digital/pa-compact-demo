@@ -65,7 +65,7 @@ export function AppRouter() {
   if (!user && !isAuthRoute && !isPublicRoute) {
     return <Navigate to="/demo-login" replace state={{ from: next }} />;
   } else if (user && isAuthRoute) {
-    return <Navigate to="/licenses" replace state={{ from: next }} />;
+    return <Navigate to="/" replace state={{ from: next }} />;
   }
 
   return <Suspense fallback={<div>Loading...</div>}>{element}</Suspense>

@@ -11,11 +11,14 @@ type HeaderProps = {
 export function PageHeader({ user, mobileNavOpen, onLogout }: HeaderProps) {
   const navigate = useNavigate();
   const primaryNavItems = [
-    <RouterLink key="nav-licenses" className="usa-nav__link" to="licenses">
-      <span>Licenses</span>
+    <RouterLink key="nav-home" className="usa-nav__link" to="/">
+      <span>Home</span>
     </RouterLink>,
     <RouterLink key="nav-privileges" className="usa-nav__link" to="privileges">
       <span>Privileges</span>
+    </RouterLink>,
+    <RouterLink key="nav-licenses" className="usa-nav__link" to="licenses">
+      <span>Licenses</span>
     </RouterLink>,
   ];
   const displayName =
