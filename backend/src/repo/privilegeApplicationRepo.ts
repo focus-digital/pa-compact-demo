@@ -60,7 +60,14 @@ export class PrivilegeApplicationRepo {
         remoteState: true,
         practitioner: {
           include: {
-            user: true,
+            user: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
           },
         },
         qualifyingLicense: true,

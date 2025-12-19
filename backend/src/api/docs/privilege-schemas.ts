@@ -28,6 +28,9 @@ export const privilegeApplicationSchema = {
     reviewerNote: { type: 'string', nullable: true },
     createdAt: { type: 'string', format: 'date-time' },
     updatedAt: { type: 'string', format: 'date-time' },
+    practitioner: {
+      anyOf: [practitionerSchema, { type: 'null' }],
+    },
     remoteState: {
       anyOf: [memberStateSchema, { type: 'null' }],
     },

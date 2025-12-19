@@ -335,7 +335,9 @@ export function PrivilegesHomePage() {
                     )}
                     {reviewRows.map((row) => (
                       <tr key={row.id}>
-                        <td>{row.practitionerName}</td>
+                        <td>
+                          <div>{row.practitionerName}</div>
+                        </td>
                         <td>{row.licenseNumber}</td>
                         <td>{row.note}</td>
                         <td>{row.submitted}</td>
