@@ -544,6 +544,7 @@ export function PrivilegesHomePage() {
                           <Label htmlFor="amount">Amount $</Label>
                           <TextInput
                             id="amount"
+                            name="amount"
                             type="text"
                             value={amountValue ?? ''}
                             readOnly

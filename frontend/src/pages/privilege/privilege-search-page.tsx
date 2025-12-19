@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { type FormEvent, useMemo, useState } from 'react';
 import {
   Button,
   Grid,
@@ -80,6 +80,7 @@ export function PrivilegeSearchPage() {
                   <TextInput
                     id="search-name"
                     name="name"
+                    type="text"
                     value={name}
                     onChange={(event) => setName(event.target.value)}
                   />
