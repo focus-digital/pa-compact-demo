@@ -6,6 +6,7 @@ import {
 import type {
   Privilege,
   PrivilegeApplication,
+  SearchResult,
 } from '@/domain/types.js';
 import {
   PrivilegeApplicationRepo,
@@ -49,6 +50,11 @@ export type VerifyApplicationInput = {
   applicationId: string;
   status: ApplicationStatus.APPROVED | ApplicationStatus.DENIED;
   expiresAt?: Date | null;
+};
+
+export type PrivilegeSearchInput = {
+  name: string;
+  qualifyingLicenseState?: string;
 };
 
 export class PrivilegeService {
@@ -188,6 +194,13 @@ export class PrivilegeService {
 
   async listApplicationsForState(memberStateId: string, status?: ApplicationStatus) {
     return this.privilegeApplicationRepo.listByRemoteStateId(memberStateId, status);
+  }
+
+  async searchPractitioners(
+    input: PrivilegeSearchInput,
+  ): Promise<SearchResult[]> {
+    // TODO remove any fields that we want to filter from public results
+    return this.practitionerRepo.searchWithQualifyingLicense(input);
   }
 
   private async ensureApplication(id: string): Promise<PrivilegeApplication> {

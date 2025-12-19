@@ -1,4 +1,4 @@
-import type { Privilege, PrivilegeApplication } from '../domain/types';
+import type { Privilege, PrivilegeApplication, PrivilegeSearchResult } from '../domain/types';
 import { ApplicationStatus } from '../domain/enums';
 import { http } from './apiClient';
 
@@ -21,6 +21,11 @@ export type VerifyPrivilegePayload = {
   applicationId: string;
   status: ApplicationStatus.APPROVED | ApplicationStatus.DENIED;
   expiresAt?: string | null;
+};
+
+export type PrivilegeSearchParams = {
+  name: string;
+  qualifyingLicenseState?: string;
 };
 
 export async function getPrivileges(): Promise<Privilege[]> {
@@ -54,5 +59,14 @@ export async function verifyPrivilege(payload: VerifyPrivilegePayload): Promise<
     '/privileges/verify',
     payload,
   );
+  return response.data;
+}
+
+export async function searchPrivileges(
+  params: PrivilegeSearchParams,
+): Promise<PrivilegeSearchResult[]> {
+  const response = await http.get<PrivilegeSearchResult[]>('/privileges/search', {
+    params,
+  });
   return response.data;
 }

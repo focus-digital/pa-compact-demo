@@ -6,9 +6,11 @@ import {
   getPrivilegeReviewApplications,
   getPrivileges,
   payForPrivilege,
+  searchPrivileges,
   verifyPrivilege,
   type ApplyPrivilegePayload,
   type PayPrivilegePayload,
+  type PrivilegeSearchParams,
   type VerifyPrivilegePayload,
 } from '../api/privilege-api';
 import { queryClient } from './queryClient';
@@ -47,6 +49,19 @@ export function usePrivilegeReviewApplications(options?: UsePrivilegeQueryOption
 function invalidatePrivilegeData() {
   void queryClient.invalidateQueries({ queryKey: PRIVILEGES_KEY });
   void queryClient.invalidateQueries({ queryKey: APPLICATIONS_KEY });
+}
+
+export function usePrivilegeSearch(params: PrivilegeSearchParams | null) {
+  return useQuery({
+    queryKey: ['privilege-search', params],
+    queryFn: () => {
+      if (!params) {
+        throw new Error('Search params required');
+      }
+      return searchPrivileges(params);
+    },
+    enabled: Boolean(params?.name),
+  });
 }
 
 export function useApplyForPrivilege() {

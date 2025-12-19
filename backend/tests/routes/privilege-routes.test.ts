@@ -20,7 +20,7 @@ import {
   LicenseVerificationStatus,
   UserRole,
 } from '@/domain/enums.js';
-import type { Practitioner, Privilege, PrivilegeApplication, User } from '@/domain/types.js';
+import type { Practitioner, Privilege, PrivilegeApplication, SearchResult, User } from '@/domain/types.js';
 import { MemberStateRepo } from '@/repo/memberStateRepo.js';
 import type { LicenseService } from '@/service/licenseService.js';
 
@@ -29,6 +29,7 @@ const PASSWORD = 'Password123!';
 describe('Privilege routes', () => {
   let app: FastifyInstance;
   let homeStateId: string;
+  let homeStateCode: string;
   let remoteStateId: string;
   let paCookie: string;
   let pa2Cookie: string;
@@ -41,6 +42,7 @@ describe('Privilege routes', () => {
   let licenseId2: string;
   let applicationId1: string;
   let applicationId2: string;
+  let paUserPrivilegeId: string;
 
   beforeAll(async () => {
     const createAppResponse = await createTestApp();
@@ -60,6 +62,7 @@ describe('Privilege routes', () => {
       name: 'Massachusetts',
     });
     homeStateId = homeState.id;
+    homeStateCode = homeState.code;
 
     const remoteState = await memberStateRepo.create({
       code: 'MD',
@@ -314,8 +317,9 @@ describe('Privilege routes', () => {
       expect(response.statusCode).toBe(200);
       const result = response.json() as {
         application: { status: ApplicationStatus };
-        privilege: { status: string };
+        privilege: { id: string, status: string };
       };
+      paUserPrivilegeId = result.privilege.id;
       expect(result.application.status).toBe(ApplicationStatus.APPROVED);
       expect(result.privilege?.status).toBe('ACTIVE');
     });
@@ -378,6 +382,56 @@ describe('Privilege routes', () => {
 
       expect(response.statusCode).toBe(403);
       expect(response.json()).toEqual({ error: 'Only practitioners may view privileges' });
+    });
+  });
+
+  describe('search endpoint', () => {
+    it('allows state admins to search by name', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/privileges/search',
+        query: { name: 'Alex' },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const results = response.json() as SearchResult[];
+      expect(results).toHaveLength(1);
+      expect(results[0]?.practitioner.id).toBe(practitioner1.id);
+      expect(results[0]?.qualifyingLicense.issuingStateId).toBe(homeStateId);
+      expect(results[0]?.privileges.length).toBe(1);
+      expect(results[0]?.privileges[0]?.id).toBe(paUserPrivilegeId);
+    });
+
+    it('filters by qualifying license state', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/privileges/search',
+        query: { name: 'Alex', qualifyingLicenseState: homeStateCode },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const results = response.json() as SearchResult[];
+      expect(results).toHaveLength(1);
+
+      const noMatchResponse = await app.inject({
+        method: 'GET',
+        url: '/privileges/search',
+        query: { name: 'Alex', qualifyingLicenseState: 'ZZ' },
+      });
+
+      expect(noMatchResponse.statusCode).toBe(200);
+      const noMatch = noMatchResponse.json() as SearchResult[];
+      expect(noMatch).toHaveLength(0);
+    });
+
+    it('validates missing name', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/privileges/search',
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.json()).toMatchObject({ message: "querystring must have required property 'name'" });
     });
   });
 });

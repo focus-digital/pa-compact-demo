@@ -1,8 +1,13 @@
 import type { FastifyInstance } from 'fastify';
 
 import { ApplicationStatus, UserRole } from '@/domain/enums.js';
-import type { Privilege, PrivilegeApplication } from '@/domain/types.js';
-import type { ApplyPrivilegeInput, PrivilegeService, VerifyApplicationInput } from '@/service/privilegeService.js';
+import type { Privilege, PrivilegeApplication, SearchResult } from '@/domain/types.js';
+import type {
+  ApplyPrivilegeInput,
+  PrivilegeSearchInput,
+  PrivilegeService,
+  VerifyApplicationInput,
+} from '@/service/privilegeService.js';
 
 export interface PrivilegeRoutesDependencies {
   privilegeService: PrivilegeService;
@@ -107,6 +112,41 @@ export function privilegeRoutes(
           error instanceof Error ? error.message : 'Failed to fetch privilege applications';
         return reply.code(400).send({ error: message });
       }
+    },
+  );
+
+  // TODO remove any fields that we want to filter from public results
+  fastify.get<{
+    Querystring: { name?: string; qualifyingLicenseState?: string };
+    Reply: SearchResult[] | { error: string };
+  }>(
+    '/privileges/search',
+    {
+      schema: {
+        tags: ['privileges'],
+        summary: 'Publicly search practitioners with qualifying licenses',
+        querystring: {
+          type: 'object',
+          required: ['name'],
+          properties: {
+            name: { type: 'string' },
+            qualifyingLicenseState: { type: 'string' },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      if (!request.query.name) {
+        return reply.code(400).send({ error: 'name is required' });
+      }
+
+      const params: PrivilegeSearchInput = {
+        name: request.query.name,
+        qualifyingLicenseState: request.query.qualifyingLicenseState,
+      };
+
+      const results = await privilegeService.searchPractitioners(params);
+      return results;
     },
   );
 

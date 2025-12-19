@@ -9,6 +9,7 @@ import { useAuth } from '@/shared/hooks/auth-queries'
 import { ApplyPage } from '@/pages/apply/apply-page'
 import { LicenseHomePage } from '@/pages/license/license-home'
 import { PrivilegesHomePage } from '@/pages/privilege/privileges-home-page'
+import { PrivilegeSearchPage } from '@/pages/privilege/privilege-search-page'
 
 const ROUTES = [    
   {
@@ -30,6 +31,10 @@ const ROUTES = [
       {
         path: '/privileges',
         element: <PrivilegesHomePage />,
+      },
+      {
+        path: '/search',
+        element: <PrivilegeSearchPage />,
       },
       {
         path: '/login',
@@ -54,9 +59,10 @@ export function AppRouter() {
 
   const path = window.location.pathname;
   const isAuthRoute = path.startsWith('/login') || path.startsWith('/demo-login');
+  const isPublicRoute = path.startsWith('/search');
 
   const next = `${location.pathname}${location.search}${location.hash}`;
-  if (!user && !isAuthRoute) {
+  if (!user && !isAuthRoute && !isPublicRoute) {
     return <Navigate to="/demo-login" replace state={{ from: next }} />;
   } else if (user && isAuthRoute) {
     return <Navigate to="/licenses" replace state={{ from: next }} />;

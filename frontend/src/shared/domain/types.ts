@@ -154,3 +154,9 @@ export type PrivilegeStatusHistory = {
   actorUserId: string | null;
   createdAt: ISODateString;
 };
+
+export type PrivilegeSearchResult = {
+  practitioner: Practitioner;
+  qualifyingLicense: License;
+  privileges: Privilege[];
+};

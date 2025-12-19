@@ -31,8 +31,12 @@ export interface ServerDependencies {
   privilegeService?: PrivilegeService;
 }
 
+/**
+ * Paths that do not require authentication. Validation done by partial matching.a
+ */
+export const AUTH_EXEMPT_PATHS = ['/health', '/login', '/demo', '/docs', '/privileges/search'];
+
 const API_ROUTE_PREFIX = { prefix: '' };
-export const AUTH_EXEMPT_PATHS = ['/health', '/login', '/logout', '/demo', '/docs'];
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN;
 const allowedOrigins = ALLOWED_ORIGIN ? [ALLOWED_ORIGIN] : [];
 

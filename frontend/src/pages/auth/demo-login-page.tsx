@@ -16,6 +16,7 @@ import {
   Radio,
   Select,
 } from '@trussworks/react-uswds';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/shared/hooks/auth-queries';
 import { UserRole } from '@/shared/domain/enums';
@@ -35,6 +36,7 @@ export function DemoLoginPage() {
   const { login } = useAuth();
   const [role, setRole] = useState<UserRole>(UserRole.PA);
   const resetModalRef = useRef<ModalRef>(null);
+  const navigate = useNavigate();
 
   const { data: users = [] } = useQuery({
     queryKey: ['demo-users'],
@@ -165,7 +167,16 @@ export function DemoLoginPage() {
                 </Fieldset>
               </Form>
             </div>
-            <div className="margin-top-2 text-center">
+            <div className="margin-top-2 display-flex flex-justify-center flex-gap-2">
+              <Button
+                type="button"
+                style={{ backgroundColor: '#2e8540', borderColor: '#2e8540' }}
+                className="display-flex flex-align-center flex-gap-1 text-white"
+                onClick={() => navigate('/search')}
+              >
+                <span aria-hidden="true">🔍</span>
+                Search Privileges
+              </Button>
               <Button
                 type="button"
                 style={{ backgroundColor: '#b50909', borderColor: '#b50909' }}
@@ -173,7 +184,7 @@ export function DemoLoginPage() {
                 onClick={() => resetModalRef.current?.toggleModal()}
               >
                 Reset Data
-              </Button>
+              </Button>              
             </div>
           </Grid>
         </Grid>
