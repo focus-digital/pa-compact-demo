@@ -11,8 +11,9 @@
 ## Stack
 
 - Prisma: ORM
-- Fastify: API
+- Fastify: API framework
 - SQlite: initial database
+- Vitest: testing
 
 ## Architecture
 

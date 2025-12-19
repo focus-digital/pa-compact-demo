@@ -12,7 +12,8 @@ registry:
 env:
   clear:
     TENANT_ID: demo
-    ALLOWED_ORIGIN: "https://pa-compact-demo-api"
+    ALLOWED_ORIGIN: "https://pa-compact-demo.focus-labs.io"
+    DEMO_MODE: true
 
 proxy:
   host: pa-compact-demo-api.focus-labs.io
