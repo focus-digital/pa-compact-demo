@@ -90,8 +90,9 @@ export function PrivilegesHomePage() {
     defaultValues: {
       remoteStateId: '',
       qualifyingLicenseId: '',
-      attestationType: '',
-      attestationText: '',
+      attestationType: 'State Jurisprudence Compliance',
+      attestationText:
+        'I, [Full Name], hereby certify that I have read, understood, and agree to comply with the State Physician Assistant Practice Act and all applicable administrative rules and regulations. I attest that I have successfully completed any required state jurisprudence assessment and acknowledge that I am legally responsible for adhering to State\'s specific laws and scope of practice while exercising a Compact Privilege. I understand that any violation of these statutes may result in the loss of my privilege to practice and will be reported to the PA Licensure Compact Commission and my home state licensing board.',
       applicantNote: '',
       attestationAccepted: false,
     },
@@ -104,6 +105,7 @@ export function PrivilegesHomePage() {
       amount: 100,
     },
   });
+  const amountValue = paymentForm.watch('amount');
 
   const activeQualifyingLicense = useMemo(() => {
     return licenses.find((license) =>
@@ -116,8 +118,16 @@ export function PrivilegesHomePage() {
   useEffect(() => {
     if (activeQualifyingLicense) {
       applicationForm.setValue('qualifyingLicenseId', activeQualifyingLicense.id);
+      if (activeQualifyingLicense.practitioner?.user) {
+        const fullName = `${activeQualifyingLicense.practitioner.user.firstName ?? ''} ${activeQualifyingLicense.practitioner.user.lastName ?? ''}`.trim();
+        applicationForm.setValue(
+          'attestationText',
+          `I, ${fullName}, hereby certify that I have read, understood, and agree to comply with the State Physician Assistant Practice Act and all applicable administrative rules and regulations. I attest that I have successfully completed any required state jurisprudence assessment and acknowledge that I am legally responsible for adhering to State's specific laws and scope of practice while exercising a Compact Privilege. I understand that any violation of these statutes may result in the loss of my privilege to practice and will be reported to the PA Licensure Compact Commission and my home state licensing board.`,
+        );
+      }
     } else {
       applicationForm.setValue('qualifyingLicenseId', '');
+      applicationForm.setValue('attestationText', '');
     }
   }, [activeQualifyingLicense, applicationForm]);
 
@@ -372,121 +382,145 @@ export function PrivilegesHomePage() {
 
             {showApplicationForms && isPa && (
               <div className="border border-base-lighter padding-2 margin-bottom-3">
-                <h2 className="margin-top-0">Step 1: Application &amp; Attestation</h2>
-                <form onSubmit={applicationForm.handleSubmit(onSubmitApplication)}>
-                  <Grid row gap="md">
-                    <Grid tabletLg={{ col: 6 }}>
-                      <Label htmlFor="remoteStateId">Remote State</Label>
-                      <Select
-                        id="remoteStateId"
-                        {...applicationForm.register('remoteStateId')}
-                        disabled={!availableRemoteStates.length}
+                {!currentApplicationId ? (
+                  <>
+                    <h2 className="margin-top-0">Step 1: Application &amp; Attestation</h2>
+                    <form onSubmit={applicationForm.handleSubmit(onSubmitApplication)}>
+                      <Grid row gap="md">
+                        <Grid tabletLg={{ col: 6 }}>
+                          <Label htmlFor="remoteStateId">Remote State</Label>
+                          <Select
+                            id="remoteStateId"
+                            {...applicationForm.register('remoteStateId')}
+                            disabled={!availableRemoteStates.length}
+                          >
+                            <option value="">
+                              {availableRemoteStates.length ? 'Select a remote state' : 'No eligible states'}
+                            </option>
+                            {availableRemoteStates.map((state) => (
+                              <option key={state.id} value={state.id}>
+                                {state.code} - {state.name}
+                              </option>
+                            ))}
+                          </Select>
+                          {applicationForm.formState.errors.remoteStateId && (
+                            <span className="text-red">
+                              {applicationForm.formState.errors.remoteStateId.message}
+                            </span>
+                          )}
+                          {!availableRemoteStates.length && (
+                            <span className="text-base">
+                              You already have active licenses in each state, so no remote states are eligible.
+                            </span>
+                          )}
+                        </Grid>
+                        <Grid tabletLg={{ col: 6 }}>
+                          <Label htmlFor="qualifyingLicenseId">Qualifying License</Label>
+                          {activeQualifyingLicense ? (
+                            <div className="padding-y-05 text-bold">
+                              {activeQualifyingLicense.licenseNumber} (
+                              {activeQualifyingLicense.issuingState?.code ?? 'Unknown'}) - Active
+                            </div>
+                          ) : (
+                            <div className="text-base">
+                              You must designate a qualifying license before applying.
+                            </div>
+                          )}
+                          <input
+                            type="hidden"
+                            id="qualifyingLicenseId"
+                            {...applicationForm.register('qualifyingLicenseId')}
+                          />
+                          {applicationForm.formState.errors.qualifyingLicenseId && (
+                            <span className="text-red">
+                              {applicationForm.formState.errors.qualifyingLicenseId.message}
+                            </span>
+                          )}
+                        </Grid>
+                      </Grid>
+
+                      <Grid row gap="md" className="margin-top-2">
+                        <Grid tabletLg={{ col: 6 }}>
+                          <Label htmlFor="attestationType">Attestation Type</Label>
+                          <TextInput
+                            type="text"
+                            id="attestationType"
+                            {...applicationForm.register('attestationType')}
+                            readOnly
+                            aria-readonly="true"
+                            className="bg-base-lightest"
+                            style={{ backgroundColor: '#f0f0f0', color: '#5c5c5c' }}
+                          />
+                          {applicationForm.formState.errors.attestationType && (
+                            <span className="text-red">
+                              {applicationForm.formState.errors.attestationType.message}
+                            </span>
+                          )}
+                        </Grid>
+                        <Grid tabletLg={{ col: 6 }}>
+                          <Label htmlFor="attestationText">Attestation Text</Label>
+                          <Textarea
+                            id="attestationText"
+                            {...applicationForm.register('attestationText')}
+                            rows={6}
+                            readOnly
+                            aria-readonly="true"
+                            className="bg-base-lightest"
+                            style={{ backgroundColor: '#f0f0f0', color: '#5c5c5c' }}
+                          />
+                        </Grid>
+                      </Grid>
+
+                      <Grid row gap="md" className="margin-top-2">
+                        <Grid tabletLg={{ col: 6 }}>
+                          <Label htmlFor="applicantNote">Applicant Note</Label>
+                          <Textarea
+                            id="applicantNote"
+                            {...applicationForm.register('applicantNote')}
+                            rows={3}
+                          />
+                        </Grid>
+                        <Grid tabletLg={{ col: 6 }} className="display-flex flex-column flex-justify-end">
+                          <Checkbox
+                            id="attestationAccepted"
+                            {...applicationForm.register('attestationAccepted')}
+                            label="I confirm all statements above are true."
+                          />
+                          {applicationForm.formState.errors.attestationAccepted && (
+                            <span className="text-red">
+                              {applicationForm.formState.errors.attestationAccepted.message}
+                            </span>
+                          )}
+                        </Grid>
+                      </Grid>
+
+                      <Button
+                        type="submit"
+                        className="margin-top-3"
+                        disabled={
+                          !canSubmitApplication ||
+                          applicationForm.formState.isSubmitting ||
+                          applyMutation.isPending
+                        }
                       >
-                        <option value="">
-                          {availableRemoteStates.length ? 'Select a remote state' : 'No eligible states'}
-                        </option>
-                        {availableRemoteStates.map((state) => (
-                          <option key={state.id} value={state.id}>
-                            {state.code} - {state.name}
-                          </option>
-                        ))}
-                      </Select>
-                      {applicationForm.formState.errors.remoteStateId && (
-                        <span className="text-red">
-                          {applicationForm.formState.errors.remoteStateId.message}
-                        </span>
+                        Submit Application
+                      </Button>
+                      {!activeQualifyingLicense && (
+                        <p className="text-base margin-top-1">
+                          Designate a qualifying license on the Licenses page to continue.
+                        </p>
                       )}
-                      {!availableRemoteStates.length && (
-                        <span className="text-base">
-                          You already have active licenses in each state, so no remote states are eligible.
-                        </span>
-                      )}
-                    </Grid>
-                    <Grid tabletLg={{ col: 6 }}>
-                      <Label htmlFor="qualifyingLicenseId">Qualifying License</Label>
-                      {activeQualifyingLicense ? (
-                        <div className="padding-y-05 text-bold">
-                          {activeQualifyingLicense.licenseNumber} (
-                          {activeQualifyingLicense.issuingState?.code ?? 'Unknown'}) - Active
-                        </div>
-                      ) : (
-                        <div className="text-base">
-                          You must designate a qualifying license before applying.
-                        </div>
-                      )}
-                      <input
-                        type="hidden"
-                        id="qualifyingLicenseId"
-                        {...applicationForm.register('qualifyingLicenseId')}
-                      />
-                      {applicationForm.formState.errors.qualifyingLicenseId && (
-                        <span className="text-red">
-                          {applicationForm.formState.errors.qualifyingLicenseId.message}
-                        </span>
-                      )}
-                    </Grid>
-                  </Grid>
-
-                  <Grid row gap="md" className="margin-top-2">
-                    <Grid tabletLg={{ col: 6 }}>
-                      <Label htmlFor="attestationType">Attestation Type</Label>
-                      <TextInput type="text" id="attestationType" {...applicationForm.register('attestationType')} />
-                      {applicationForm.formState.errors.attestationType && (
-                        <span className="text-red">
-                          {applicationForm.formState.errors.attestationType.message}
-                        </span>
-                      )}
-                    </Grid>
-                    <Grid tabletLg={{ col: 6 }}>
-                      <Label htmlFor="attestationText">Attestation Text (optional)</Label>
-                      <Textarea
-                        id="attestationText"
-                        {...applicationForm.register('attestationText')}
-                        rows={3}
-                      />
-                    </Grid>
-                  </Grid>
-
-                  <Grid row gap="md" className="margin-top-2">
-                    <Grid tabletLg={{ col: 6 }}>
-                      <Label htmlFor="applicantNote">Applicant Note</Label>
-                      <Textarea
-                        id="applicantNote"
-                        {...applicationForm.register('applicantNote')}
-                        rows={3}
-                      />
-                    </Grid>
-                    <Grid tabletLg={{ col: 6 }} className="display-flex flex-column flex-justify-end">
-                      <Checkbox
-                        id="attestationAccepted"
-                        {...applicationForm.register('attestationAccepted')}
-                        label="I confirm all statements above are true."
-                      />
-                      {applicationForm.formState.errors.attestationAccepted && (
-                        <span className="text-red">
-                          {applicationForm.formState.errors.attestationAccepted.message}
-                        </span>
-                      )}
-                    </Grid>
-                  </Grid>
-
-                  <Button
-                    type="submit"
-                    className="margin-top-3"
-                    disabled={
-                      !canSubmitApplication ||
-                      applicationForm.formState.isSubmitting ||
-                      applyMutation.isPending
-                    }
-                  >
-                    Submit Application
-                  </Button>
-                  {!activeQualifyingLicense && (
-                    <p className="text-base margin-top-1">
-                      Designate a qualifying license on the Licenses page to continue.
-                    </p>
-                  )}
-                </form>
+                    </form>
+                  </>
+                ) : (
+                  <div className="usa-alert usa-alert--info margin-bottom-3">
+                    <div className="usa-alert__body">
+                      <p className="usa-alert__text">
+                        Your application has been submitted. Complete payment below to finish the process.
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {currentApplicationId ? (
                   <>
@@ -501,14 +535,21 @@ export function PrivilegesHomePage() {
                     )}
                     <form onSubmit={paymentForm.handleSubmit(onSubmitPayment)}>
                       <input type="hidden" {...paymentForm.register('applicationId')} />
+                      <input
+                        type="hidden"
+                        {...paymentForm.register('amount', { valueAsNumber: true })}
+                      />
                       <Grid row gap="md">
                         <Grid tabletLg={{ col: 6 }}>
-                          <Label htmlFor="amount">Amount (cents)</Label>
+                          <Label htmlFor="amount">Amount $</Label>
                           <TextInput
                             id="amount"
-                            type="number"
-                            min={1}
-                            {...paymentForm.register('amount', { valueAsNumber: true })}
+                            type="text"
+                            value={amountValue ?? ''}
+                            readOnly
+                            disabled
+                            className="bg-base-lightest"
+                            style={{ backgroundColor: '#f0f0f0', color: '#5c5c5c' }}
                           />
                           {paymentForm.formState.errors.amount && (
                             <span className="text-red">
@@ -523,7 +564,7 @@ export function PrivilegesHomePage() {
                         className="margin-top-3"
                         disabled={paymentForm.formState.isSubmitting || payMutation.isPending}
                       >
-                        Record Payment
+                        Submit Payment
                       </Button>
                     </form>
                   </>

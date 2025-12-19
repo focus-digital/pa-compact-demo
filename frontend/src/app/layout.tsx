@@ -12,7 +12,12 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [mobileNavOpen] = useState(false);
   const { user, logout } = useAuth();
   
-  const identifierLinksText = ['About <Parent shortname>', 'Accessibility support', 'FOIA requests', 'No FEAR Act data', 'Office of the Inspector General', 'Performance reports', 'Privacy policy'];
+  const identifierLinks = [
+    { text: 'About the PA Compact', href: 'https://www.pacompact.org//about-pa-licensure-compact/' },
+    { text: 'Resource Center', href: 'https://www.pacompact.org/compact-toolkit/' },
+    { text: 'News & Updates', href: 'https://www.pacompact.org/news' },
+    { text: 'FAQ', href: 'https://www.pacompact.org/FAQ' },
+  ];
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -33,9 +38,11 @@ export function AppLayout({ children }: AppLayoutProps) {
             'aria-label': 'Important links',
           }}
         >
-          {identifierLinksText.map((text, idx) => (
-            <IdentifierLinkItem key={idx}>
-              <Link href="javascript:void(0);">{text}</Link>
+          {identifierLinks.map((link) => (
+            <IdentifierLinkItem key={link.href}>
+              <Link href={link.href} target="_blank" rel="noreferrer">
+                {link.text}
+              </Link>
             </IdentifierLinkItem>
           ))}
         </IdentifierLinks>

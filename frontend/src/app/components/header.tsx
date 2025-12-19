@@ -1,5 +1,5 @@
 import type { User } from "@/shared/domain/types"
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { ExtendedNav, Header, Title } from '@trussworks/react-uswds';
 
 type HeaderProps = {
@@ -9,6 +9,7 @@ type HeaderProps = {
 }
 
 export function PageHeader({ user, mobileNavOpen, onLogout }: HeaderProps) {
+  const navigate = useNavigate();
   const primaryNavItems = [
     <RouterLink key="nav-licenses" className="usa-nav__link" to="licenses">
       <span>Licenses</span>
@@ -17,9 +18,18 @@ export function PageHeader({ user, mobileNavOpen, onLogout }: HeaderProps) {
       <span>Privileges</span>
     </RouterLink>,
   ];
+  const displayName =
+    user
+      ? `${user?.firstName} ${user.lastName}`.trim()
+      : '';
+
   const secondaryNavItems = [<a key="secondaryNav_0" href="">
-      {user?.email}
-    </a>, <a key="secondaryNav_1" onClick={onLogout}>
+      {displayName}
+    </a>, <a
+      key="secondaryNav_1"
+      onClick={onLogout}
+      style={{ cursor: 'pointer' }}
+    >
       Logout
     </a>]
 
@@ -32,9 +42,14 @@ export function PageHeader({ user, mobileNavOpen, onLogout }: HeaderProps) {
       <div className="usa-nav-container">
         <div className="usa-navbar">
           <Title id="basic-logo">
-            <a href="javascript:void(0);" title="Home" aria-label="Home">
-              {'Licensure System'}
-            </a>
+            <button
+              type="button"
+              className="usa-button usa-button--unstyled text-no-underline font-body-lg"
+              onClick={() => navigate('/')}
+              aria-label="Home"
+            >
+              Licensure System Demo
+            </button>
           </Title>
           <p>
             PA Compact Commission

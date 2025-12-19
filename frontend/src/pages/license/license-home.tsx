@@ -84,8 +84,8 @@ export function LicenseHomePage() {
       await addMutation.mutateAsync({
         issuingStateId: values.issuingStateId,
         licenseNumber: values.licenseNumber,
-        issueDate: values.issueDate,
-        expirationDate: values.expirationDate,
+        issueDate: formatDateForApi(values.issueDate),
+        expirationDate: formatDateForApi(values.expirationDate),
         selfReportedStatus: values.selfReportedStatus,
         evidenceUrl: values.evidenceUrl || undefined,
       });
@@ -97,9 +97,12 @@ export function LicenseHomePage() {
     }
   }
 
-  async function onVerifyLicense(licenseId: string) {
+  async function onVerifyLicense(
+    licenseId: string,
+    verificationStatus: LicenseVerificationStatus = LicenseVerificationStatus.VERIFIED,
+  ) {
     try {
-      await verifyMutation.mutateAsync({ licenseId });
+      await verifyMutation.mutateAsync({ licenseId, verificationStatus });
     } catch (error) {
       console.error('Failed to verify license', error);
       alert('Failed to verify license');
@@ -143,6 +146,8 @@ export function LicenseHomePage() {
   const tableDescription = isPa
     ? 'View and manage your licenses. A license must be verified before it can be designated as qualifying.'
     : 'Review unverified licenses in your member state and verify them once they have been confirmed.';
+  const usedStateIds = new Set(licenses.map((license) => license.issuingStateId));
+  const availableStates = memberStates.filter((state) => !usedStateIds.has(state.id));
 
   return (
     <div className="usa-section">
@@ -184,10 +189,10 @@ export function LicenseHomePage() {
                     <Select
                       id="issuingStateId"
                       {...register('issuingStateId')}
-                      disabled={statesLoading || !memberStates.length}
+                      disabled={statesLoading || !availableStates.length}
                     >
                       <option value="">Select a state</option>
-                      {memberStates.map((state) => (
+                      {availableStates.map((state) => (
                         <option key={state.id} value={state.id}>
                           {state.code} - {state.name}
                         </option>
@@ -196,7 +201,7 @@ export function LicenseHomePage() {
                     {errors.issuingStateId && (
                       <span className="text-red">{errors.issuingStateId.message}</span>
                     )}
-                    {!statesLoading && !memberStates.length && (
+                    {!statesLoading && !availableStates.length && (
                       <span className="text-red">No states available.</span>
                     )}
                   </Grid>
@@ -309,34 +314,56 @@ export function LicenseHomePage() {
                       <td>{license.expirationDateLabel}</td>
                       <td>{license.selfReportedStatus}</td>
                       <td>{license.verificationStatus}</td>
-                      {isPa && <td>{license.designationLabel}</td>}
+                      {isPa && (
+                        <td>
+                          {license.designationLabel ===
+                          QualifyingLicenseDesignationStatus.ACTIVE ? (
+                            <strong>{license.designationLabel}</strong>
+                          ) : (
+                            license.designationLabel
+                          )}
+                        </td>
+                      )}
                       <td>
-                            <div className="display-flex flex-column gap-05">
-                              {license.canVerify && (
-                                <Button
-                                  type="button"
-                                  disabled={verifyMutation.isPending}
-                                  onClick={() => onVerifyLicense(license.id)}
-                                >
-                                  Verify
-                                </Button>
-                              )}
-                              {license.canDesignate && (
-                                <ModalToggleButton
-                                  modalRef={modalRef}
-                                  opener
-                                  type="button"
-                                  secondary
-                                  disabled={designateMutation.isPending}
-                                  onClick={() => {
-                                    setPendingDesignationId(license.id);
-                                  }}
-                                >
-                                  Designate
-                                </ModalToggleButton>
-                              )}
-                            </div>
-                          </td>
+                        <div className="display-flex flex-column gap-1">
+                          {license.canVerify && (
+                            <Button
+                              type="button"
+                              disabled={verifyMutation.isPending}
+                              onClick={() => onVerifyLicense(license.id)}
+                            >
+                              Verify
+                            </Button>
+                          )}
+                          {license.canVerify && (
+                            <Button
+                              type="button"
+                              className="usa-button--secondary margin-top-1"
+                              disabled={verifyMutation.isPending}
+                              onClick={() =>
+                                onVerifyLicense(license.id, LicenseVerificationStatus.NOT_ELIGIBLE)
+                              }
+                            >
+                              Not Eligible
+                            </Button>
+                          )}
+                          {license.canDesignate && (
+                            <ModalToggleButton
+                              modalRef={modalRef}
+                              opener
+                              type="button"
+                              secondary
+                              className="margin-top-1"
+                              disabled={designateMutation.isPending}
+                              onClick={() => {
+                                setPendingDesignationId(license.id);
+                              }}
+                            >
+                              Designate
+                            </ModalToggleButton>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                   {!rows.length && (
@@ -385,4 +412,24 @@ function formatDate(value: string | null | undefined): string {
     day: 'numeric',
     year: '2-digit',
   }).format(date);
+}
+
+function formatDateForApi(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return trimmed;
+  }
+
+  const parsed = new Date(trimmed);
+  if (Number.isNaN(parsed.getTime())) {
+    return trimmed;
+  }
+
+  return parsed.toISOString();
+
+  // const month = String(parsed.getMonth() + 1).padStart(2, '0');
+  // const day = String(parsed.getDate()).padStart(2, '0');
+  // const year = parsed.getFullYear();
+
+  // return `${year}-${month}-${day}`;
 }

@@ -152,7 +152,7 @@ export function DemoLoginPage() {
                     <option value="">Select a user</option>
                     {filteredUsers.map((user) => (
                       <option key={user.id} value={user.email}>
-                        {user.email}
+                        {`${user.firstName} ${user.lastName}`.trim()}
                         {user.role === UserRole.STATE_ADMIN && user.memberState?.code
                           ? ` (${user.memberState.code})`
                           : ''}
@@ -170,8 +170,8 @@ export function DemoLoginPage() {
             <div className="margin-top-2 display-flex flex-justify-center flex-gap-2">
               <Button
                 type="button"
-                style={{ backgroundColor: '#2e8540', borderColor: '#2e8540' }}
-                className="display-flex flex-align-center flex-gap-1 text-white"
+                style={{ backgroundColor: 'white', borderColor: '#2e8540', color: '#2e8540' }}
+                className="display-flex flex-align-center flex-gap-1"
                 onClick={() => navigate('/search')}
               >
                 <span aria-hidden="true">🔍</span>
