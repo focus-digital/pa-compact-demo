@@ -8,6 +8,16 @@ import type {
   PrivilegeService,
   VerifyApplicationInput,
 } from '@/service/privilegeService.js';
+import {
+  privilegeApplicationSchema,
+  privilegeApplyRequestSchema,
+  privilegePayRequestSchema,
+  privilegeSchema,
+  privilegeSearchResultSchema,
+  privilegeVerifyRequestSchema,
+  privilegeVerifyResponseSchema,
+} from '../docs/privilege-schemas.js';
+import { errorSchema } from '../docs/shared-schemas.js';
 
 export interface PrivilegeRoutesDependencies {
   privilegeService: PrivilegeService;
@@ -25,6 +35,16 @@ export function privilegeRoutes(
       schema: {
         tags: ['privileges'],
         summary: 'List privileges for the current practitioner',
+        security: [{ cookieAuth: [] }, { bearerAuth: [] }],
+        response: {
+          200: {
+            type: 'array',
+            items: privilegeSchema,
+          },
+          400: errorSchema,
+          401: errorSchema,
+          403: errorSchema,
+        },
       },
     },
     async (request, reply) => {
@@ -54,6 +74,16 @@ export function privilegeRoutes(
       schema: {
         tags: ['privileges'],
         summary: 'List privilege applications for the current practitioner',
+        security: [{ cookieAuth: [] }, { bearerAuth: [] }],
+        response: {
+          200: {
+            type: 'array',
+            items: privilegeApplicationSchema,
+          },
+          400: errorSchema,
+          401: errorSchema,
+          403: errorSchema,
+        },
       },
     },
     async (request, reply) => {
@@ -84,6 +114,16 @@ export function privilegeRoutes(
       schema: {
         tags: ['privileges'],
         summary: 'List under-review applications for the state admin member state',
+        security: [{ cookieAuth: [] }, { bearerAuth: [] }],
+        response: {
+          200: {
+            type: 'array',
+            items: privilegeApplicationSchema,
+          },
+          400: errorSchema,
+          401: errorSchema,
+          403: errorSchema,
+        },
       },
     },
     async (request, reply) => {
@@ -133,6 +173,13 @@ export function privilegeRoutes(
             qualifyingLicenseState: { type: 'string' },
           },
         },
+        response: {
+          200: {
+            type: 'array',
+            items: privilegeSearchResultSchema,
+          },
+          400: errorSchema,
+        },
       },
     },
     async (request, reply) => {
@@ -151,7 +198,7 @@ export function privilegeRoutes(
   );
 
   fastify.post<{
-    Body: ApplyPrivilegeInput
+    Body: ApplyPrivilegeInput;
     Reply: PrivilegeApplication | { error: string };
   }>(
     '/privileges/apply',
@@ -159,24 +206,13 @@ export function privilegeRoutes(
       schema: {
         tags: ['privileges'],
         summary: 'Apply for a privilege (PA only)',
-        body: {
-          type: 'object',
-          required: [
-            'practitionerId',
-            'remoteStateId',
-            'qualifyingLicenseId',
-            'attestationType',
-            'attestationAccepted',
-          ],
-          properties: {
-            practitionerId: { type: 'string', format: 'uuid' },
-            remoteStateId: { type: 'string', format: 'uuid' },
-            qualifyingLicenseId: { type: 'string', format: 'uuid' },
-            attestationType: { type: 'string' },
-            attestationAccepted: { type: 'boolean' },
-            attestationText: { type: 'string', nullable: true },
-            applicantNote: { type: 'string', nullable: true },
-          },
+        security: [{ cookieAuth: [] }, { bearerAuth: [] }],
+        body: privilegeApplyRequestSchema,
+        response: {
+          200: privilegeApplicationSchema,
+          400: errorSchema,
+          401: errorSchema,
+          403: errorSchema,
         },
       },
     },
@@ -199,13 +235,13 @@ export function privilegeRoutes(
       schema: {
         tags: ['privileges'],
         summary: 'Record payment for an application (PA only)',
-        body: {
-          type: 'object',
-          required: ['applicationId', 'amount'],
-          properties: {
-            applicationId: { type: 'string', format: 'uuid' },
-            amount: { type: 'integer', minimum: 0 },
-          },
+        security: [{ cookieAuth: [] }, { bearerAuth: [] }],
+        body: privilegePayRequestSchema,
+        response: {
+          200: privilegeApplicationSchema,
+          400: errorSchema,
+          401: errorSchema,
+          403: errorSchema,
         },
       },
     },
@@ -230,17 +266,13 @@ export function privilegeRoutes(
       schema: {
         tags: ['privileges'],
         summary: 'Approve or deny an application (State Admin only)',
-        body: {
-          type: 'object',
-          required: ['applicationId', 'status'],
-          properties: {
-            applicationId: { type: 'string', format: 'uuid' },
-            status: {
-              type: 'string',
-              enum: [ApplicationStatus.APPROVED, ApplicationStatus.DENIED],
-            },
-            expiresAt: { type: 'string', format: 'date-time', nullable: true },
-          },
+        security: [{ cookieAuth: [] }, { bearerAuth: [] }],
+        body: privilegeVerifyRequestSchema,
+        response: {
+          200: privilegeVerifyResponseSchema,
+          400: errorSchema,
+          401: errorSchema,
+          403: errorSchema,
         },
       },
     },

@@ -431,7 +431,7 @@ describe('Privilege routes', () => {
       });
 
       expect(response.statusCode).toBe(400);
-      expect(response.json()).toMatchObject({ message: "querystring must have required property 'name'" });
+      expect(response.json()).toMatchObject({ "error": "Bad Request" });
     });
   });
 });

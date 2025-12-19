@@ -7,6 +7,14 @@ import {
 } from '@/domain/enums.js';
 import type { License, QualifyingLicenseDesignation } from '@/domain/types.js';
 import type { LicenseService } from '@/service/licenseService.js';
+import {
+  licenseCreateRequestSchema,
+  licenseDesignateRequestSchema,
+  licenseSchema,
+  licenseVerifyRequestSchema,
+  qualifyingLicenseDesignationSchema,
+} from '../docs/license-schemas.js';
+import { errorSchema } from '../docs/shared-schemas.js';
 
 export interface LicenseRoutesDependencies {
   licenseService: LicenseService;
@@ -56,6 +64,22 @@ export function licenseRoutes(
       schema: {
         tags: ['licenses'],
         summary: 'List licenses for current user',
+        security: [{ cookieAuth: [] }, { bearerAuth: [] }],
+        querystring: {
+          type: 'object',
+          properties: {
+            status: { type: 'string', nullable: true },
+          },
+        },
+        response: {
+          200: {
+            type: 'array',
+            items: licenseSchema,
+          },
+          400: errorSchema,
+          401: errorSchema,
+          403: errorSchema,
+        },
       },
     },
     async (request, reply) => {
@@ -96,6 +120,14 @@ export function licenseRoutes(
       schema: {
         tags: ['licenses'],
         summary: 'Create a license (PA only)',
+        security: [{ cookieAuth: [] }, { bearerAuth: [] }],
+        body: licenseCreateRequestSchema,
+        response: {
+          200: licenseSchema,
+          400: errorSchema,
+          401: errorSchema,
+          403: errorSchema,
+        },
       },
     },
     async (request, reply) => {
@@ -147,6 +179,15 @@ export function licenseRoutes(
       schema: {
         tags: ['licenses'],
         summary: 'Verify a license (State Admin only)',
+        security: [{ cookieAuth: [] }, { bearerAuth: [] }],
+        body: licenseVerifyRequestSchema,
+        response: {
+          200: licenseSchema,
+          400: errorSchema,
+          401: errorSchema,
+          403: errorSchema,
+          404: errorSchema,
+        },
       },
     },
     async (request, reply) => {
@@ -201,6 +242,15 @@ export function licenseRoutes(
       schema: {
         tags: ['licenses'],
         summary: 'Designate a license as qualifying (PA only)',
+        security: [{ cookieAuth: [] }, { bearerAuth: [] }],
+        body: licenseDesignateRequestSchema,
+        response: {
+          200: qualifyingLicenseDesignationSchema,
+          400: errorSchema,
+          401: errorSchema,
+          403: errorSchema,
+          404: errorSchema,
+        },
       },
     },
     async (request, reply) => {

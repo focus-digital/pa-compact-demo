@@ -2,6 +2,8 @@ import type { FastifyInstance } from 'fastify';
 
 import type { MemberStateService } from '@/service/memberStateService.js';
 import type { MemberState } from '@/domain/types.js';
+import { memberStateSchema } from '../docs/member-state-schemas.js';
+import { errorSchema } from '../docs/shared-schemas.js';
 
 export interface MemberStateRoutesDependencies {
   memberStateService: MemberStateService;
@@ -24,20 +26,9 @@ export function memberStateRoutes(
         response: {
           200: {
             type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                code: { type: 'string' },
-                name: { type: 'string' },
-                isActive: { type: 'boolean' },
-                createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' },
-              },
-              required: ['id', 'code', 'name', 'isActive', 'createdAt', 'updatedAt'],
-              additionalProperties: false,
-            },
+            items: memberStateSchema,
           },
+          500: errorSchema,
         },
       },
     },

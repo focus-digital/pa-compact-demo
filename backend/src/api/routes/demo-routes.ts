@@ -19,11 +19,11 @@ export function demoRoutes(
 
   const { userService, prisma } = options.dependencies;
 
-  fastify.get('/demo/users', async () => {
+  fastify.get('/demo/users', { schema: { hide: true } }, async () => {
     return userService.listUsers();
   });
 
-  fastify.post('/demo/reset', async () => {
+  fastify.post('/demo/reset', { schema: { hide: true } }, async () => {
     await resetDatabase(prisma);
     await runDemoSeed(prisma);
     return { status: 'ok' };
