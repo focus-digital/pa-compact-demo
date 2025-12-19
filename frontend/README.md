@@ -1,4 +1,4 @@
-# Typescript Frontend Templates
+# PA Compact - Licensure System Demo
 
 ## Prerequisites
 - Typescript
@@ -72,5 +72,5 @@ Steps:
 VITE_API_URL=https://api.example.com
 ```
 
-1.
+1. Submit
 

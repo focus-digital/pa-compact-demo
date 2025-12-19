@@ -1,6 +1,5 @@
-# Typescript Fullstack Template
+# PA Compact - Licensure System Demo
 
-This is a typescript fullstack template for the government digital services context.
 
 ## Getting Started
-Update the title of this README and follow READMEs under `backend` and `frontend` folders.
+Update the title of this README and follow READMEs under [`backend`](/backend/README.md) and [`frontend`](/frontend/README.md) folders.

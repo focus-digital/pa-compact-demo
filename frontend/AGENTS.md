@@ -1,8 +1,11 @@
 # React + TypeScript + Vite
 
-For UI components use the @trussworks/react-uswds library.
+This file is meant for AI/LLM coding assistance tools and agents.
+
 
 ## Stack, libraries, and tooling
+
+Important: For UI components use the @trussworks/react-uswds library and the associated local MCP server.
 
 Use the following libraries and tools for each category of frontend concept:
 

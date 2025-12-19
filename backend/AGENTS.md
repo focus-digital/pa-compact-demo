@@ -1,5 +1,7 @@
 # AGENTS.md: Fastify & Prisma Backend
 
+This file is meant for AI/LLM coding assistance tools and agents.
+
 ## Stack
 
 - Prisma: ORM

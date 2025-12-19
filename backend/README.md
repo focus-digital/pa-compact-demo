@@ -1,4 +1,4 @@
-# Physician Assistants Licensure Compact - Data System Demo
+# PA Compact - Licensure System Demo
 
 ## Prerequisites
 - NodeJS
